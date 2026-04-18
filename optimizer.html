@@ -422,7 +422,10 @@ function applyTheme(dark) {
   document.getElementById('tt-icon').textContent  = dark ? '🌙' : '☀️';
   document.getElementById('tt-label').textContent = dark ? 'SOMBRE' : 'CLAIR';
   localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
-  if (Object.keys(charts).length) recolourCharts();
+
+  if (typeof charts !== 'undefined' && Object.keys(charts).length) {
+    recolourCharts();
+  }
 }
 window.toggleTheme = () => applyTheme(!document.documentElement.classList.contains('dark'));
 // Default = light; only go dark if explicitly saved
