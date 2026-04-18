@@ -1,0 +1,16 @@
+{
+  "name": "warlane",
+  "version": "2.0.0",
+  "description": "WarLane — lane-based strategy game with headless simulation engine",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "sim": "node run-simulation.js",
+    "sim:single": "node run-simulation.js --single",
+    "sim:fast": "node run-simulation.js --runs 1000 --dt 200 --max-dur 120",
+    "sim:thorough": "node run-simulation.js --runs 5000 --dt 100 --max-dur 300"
+  },
+  "devDependencies": {
+    "serve": "^14.0.0"
+  }
+}

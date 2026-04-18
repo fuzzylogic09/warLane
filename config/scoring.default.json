@@ -1,0 +1,11 @@
+{
+  "_comment": "WarLane — Scoring weights for simulation quality evaluation.",
+  "balanceWeight": 0.35,
+  "durationWeight": 0.25,
+  "diversityWeight": 0.20,
+  "frontlineWeight": 0.20,
+  "idealDurationMs": 90000,
+  "maxDurationMs": 300000,
+  "stalemateThresholdMs": 15000,
+  "unitDiversityBonus": 0.1
+}

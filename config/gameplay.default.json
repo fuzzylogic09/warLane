@@ -1,0 +1,135 @@
+{
+  "_comment": "WarLane — Default Gameplay Configuration. All tuneable parameters.",
+
+  "NC": 10,
+  "SLOTS": 6,
+  "GBASE": 18,
+  "GCELL": 1.2,
+  "CQRATE": 0.012,
+  "MAXG": 999,
+
+  "AITICK": 550,
+  "AI_MOVES": 3,
+  "AI_BUILDS": 2,
+  "AI_MAX_UNITS": 10,
+  "AI_CATAPULT_CHANCE": 0.45,
+
+  "MOVE_TICK": 900,
+
+  "EVT_MIN": 20000,
+  "EVT_MAX": 35000,
+
+  "SCORING": {
+    "balanceWeight": 0.35,
+    "durationWeight": 0.25,
+    "diversityWeight": 0.20,
+    "frontlineWeight": 0.20,
+    "idealDurationMs": 90000,
+    "maxDurationMs": 300000
+  },
+
+  "units": {
+    "warrior": {
+      "name": "Guerrier",
+      "icon": "🗡️",
+      "slots": 1,
+      "cost": 60,
+      "buildTime": 5000,
+      "hp": 130,
+      "armor": 14,
+      "dmg": 24,
+      "range": 1,
+      "rMin": 0,
+      "aspd": 1500,
+      "proj": null,
+      "splash": 0,
+      "abil": {
+        "name": "Charge",
+        "icon": "💨",
+        "desc": "Avance d'1 case et attaque en premier",
+        "cd": 12000
+      }
+    },
+    "archer": {
+      "name": "Archer",
+      "icon": "🏹",
+      "slots": 1,
+      "cost": 85,
+      "buildTime": 7000,
+      "hp": 75,
+      "armor": 4,
+      "dmg": 20,
+      "range": 3,
+      "rMin": 0,
+      "aspd": 2200,
+      "proj": { "col": "#c9a84c", "spd": 0.55, "sz": 3 },
+      "splash": 0,
+      "abil": {
+        "name": "Barrage",
+        "icon": "🌧️",
+        "desc": "Frappe toutes les unités d'une case visible",
+        "cd": 18000
+      }
+    },
+    "catapult": {
+      "name": "Catapulte",
+      "icon": "💣",
+      "slots": 3,
+      "cost": 210,
+      "buildTime": 16000,
+      "hp": 220,
+      "armor": 9,
+      "dmg": 60,
+      "range": 6,
+      "rMin": 2,
+      "aspd": 4500,
+      "proj": { "col": "#ff6600", "spd": 0.30, "sz": 6 },
+      "splash": 1,
+      "abil": {
+        "name": "Bombardement",
+        "icon": "🔥",
+        "desc": "Double dégâts sur la prochaine attaque",
+        "cd": 25000
+      }
+    }
+  },
+
+  "buildings": [
+    { "id": "barracks", "name": "Caserne",      "icon": "🏰", "unit": "warrior"  },
+    { "id": "range",    "name": "Stand de Tir", "icon": "🎯", "unit": "archer"   },
+    { "id": "foundry",  "name": "Fonderie",     "icon": "⚙️", "unit": "catapult" }
+  ],
+
+  "events": [
+    {
+      "id": "reinforce",
+      "txt": "🛡 RENFORTS ! Un guerrier allié rejoint la mêlée.",
+      "type": "reinforce",
+      "params": { "unit": "warrior", "owner": "player" }
+    },
+    {
+      "id": "goldrain",
+      "txt": "💰 PLUIE D'OR ! Bonus de 150 pièces.",
+      "type": "goldBonus",
+      "params": { "owner": "player", "amount": 150 }
+    },
+    {
+      "id": "frenzy",
+      "txt": "⚡ FRÉNÉSIE ! Toutes vos unités attaquent 2x plus vite pendant 8s.",
+      "type": "buff",
+      "params": { "owner": "player", "buffName": "frenzy", "duration": 8000 }
+    },
+    {
+      "id": "plague",
+      "txt": "☠ PESTE ! L'ennemi subit une épidémie : ses unités perdent 20 PV.",
+      "type": "plague",
+      "params": { "owner": "enemy", "damage": 20 }
+    },
+    {
+      "id": "fortify",
+      "txt": "🏰 FORTIFICATION ! Votre case la plus avancée est renforcée.",
+      "type": "fortify",
+      "params": { "owner": "player" }
+    }
+  ]
+}

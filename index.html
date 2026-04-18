@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d0b08">
+<link rel="manifest" href="./manifest.json">
+<title>WarLane</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:wght@300;400&display=swap');
+:root{
+  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a1f;
+  --blue:#2a6496;--blue-l:#4fa3d1;--blue-d:#1a3d5c;
+  --red:#8b1a1a;--red-l:#d43f3f;--red-d:#5a0a0a;
+  --bg:#0d0b08;--bg2:#1a1610;--bg3:#221e16;
+  --text:#d4c89a;--dim:#8a7d5a;--border:#4a3f2a;
+  --green:#2e7d32;--green-l:#66bb6a;
+  --purple:#6a1b9a;--purple-l:#ce93d8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;
+  height:100dvh;display:flex;flex-direction:column;overflow:hidden;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+
+/* ── HUD ── */
+#hud{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 10px;background:linear-gradient(180deg,#0d0b08,#1a1610);
+  border-bottom:1px solid var(--border);flex-shrink:0;gap:6px;}
+.hud-title{font-family:'Cinzel',serif;font-size:15px;font-weight:900;
+  color:var(--gold);letter-spacing:3px;text-shadow:0 0 18px rgba(201,168,76,.5);}
+.hud-res{display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.4);
+  border:1px solid var(--border);border-radius:4px;padding:3px 7px;}
+.hud-res .ri{font-size:13px;}.hud-res .rv{font-family:'Cinzel',serif;
+  color:var(--gold-l);font-weight:700;min-width:34px;font-size:12px;}
+.hud-res .rl{color:var(--dim);font-size:8px;line-height:1.2;}
+#pr{border-color:var(--blue);}#er{border-color:var(--red);}
+.sbtns{display:flex;gap:3px;}
+.sbtn{background:var(--bg3);border:1px solid var(--border);color:var(--dim);
+  font-family:'Cinzel',serif;font-size:8px;padding:3px 5px;cursor:pointer;
+  border-radius:3px;transition:all .15s;}
+.sbtn.on,.sbtn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── EVENT BANNER ── */
+#evt-banner{
+  background:linear-gradient(90deg,rgba(106,27,154,.9),rgba(138,43,226,.85));
+  border-bottom:1px solid var(--purple-l);
+  padding:5px 14px;font-family:'Cinzel',serif;font-size:11px;
+  color:var(--purple-l);letter-spacing:1px;text-align:center;
+  flex-shrink:0;display:none;animation:pulseB .8s infinite alternate;
+}
+@keyframes pulseB{from{opacity:.8}to{opacity:1}}
+#evt-banner.show{display:block;}
+
+/* ── BATTLEFIELD ── */
+#bwrap{flex:1;display:flex;flex-direction:column;padding:6px 8px 3px;
+  min-height:0;position:relative;}
+#llabels{display:flex;justify-content:space-between;padding:0 3px;margin-bottom:3px;}
+.lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;}
+.lbl.p{color:var(--blue-l);}.lbl.e{color:var(--red-l);}
+#lane{flex:1;display:flex;gap:3px;align-items:stretch;position:relative;min-height:0;}
+
+/* ── CELLS ── */
+.cell{flex:1;border-radius:4px;border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:stretch;
+  padding:3px 2px 5px;position:relative;cursor:pointer;
+  transition:border-color .15s,background .15s;min-width:0;overflow:hidden;}
+.cell.po{background:rgba(42,100,150,.22);border-color:var(--blue);}
+.cell.eo{background:rgba(139,26,26,.22);border-color:var(--red);}
+.cell.no{background:rgba(58,53,48,.22);}
+.cell.fort{box-shadow:inset 0 0 8px rgba(201,168,76,.3);}
+.cell.drag-over{border-color:var(--gold)!important;box-shadow:inset 0 0 8px rgba(201,168,76,.25);}
+.cell.drag-src{border-color:var(--gold)!important;background:rgba(201,168,76,.1)!important;
+  box-shadow:inset 0 0 10px rgba(201,168,76,.25);}
+.cell.vtgt{border-color:rgba(201,168,76,.5)!important;background:rgba(201,168,76,.06)!important;}
+.cell.vtgt::after{content:'✦';position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);font-size:11px;color:rgba(201,168,76,.45);pointer-events:none;}
+.cell-idx{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  font-family:'Cinzel',serif;font-size:7px;color:rgba(138,125,90,.3);pointer-events:none;}
+.cell-slots{position:absolute;top:1px;right:2px;font-family:'Cinzel',serif;
+  font-size:7px;color:var(--dim);pointer-events:none;}
+.cell-morale{position:absolute;top:1px;left:2px;font-size:8px;pointer-events:none;}
+.cell-cq{position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:rgba(0,0,0,.4);border-radius:0 0 3px 3px;overflow:hidden;}
+.cell-cq-bar{height:100%;transition:width .4s;}
+
+/* ── UNITS ── */
+.ustack{display:flex;flex-direction:column;gap:1px;width:100%;
+  padding:1px;flex:1;overflow:hidden;}
+.utok{border-radius:3px;padding:2px 3px;display:flex;align-items:center;
+  justify-content:space-between;cursor:grab;border:1px solid transparent;
+  transition:transform .1s,border-color .1s,box-shadow .1s;
+  position:relative;gap:2px;flex-shrink:0;min-height:20px;}
+.utok:active{cursor:grabbing;}
+.utok.pu{background:rgba(42,100,150,.5);border-color:var(--blue);}
+.utok.eu{background:rgba(139,26,26,.5);border-color:var(--red);}
+.utok.dragging{opacity:.35;}
+.utok.sel{border-color:var(--gold)!important;
+  box-shadow:0 0 0 2px rgba(201,168,76,.55),0 0 10px rgba(201,168,76,.35);
+  transform:scale(1.07);z-index:5;}
+.utok.marching::before{content:'→';position:absolute;top:-8px;left:50%;
+  transform:translateX(-50%);font-size:8px;color:var(--gold-l);animation:march .5s infinite alternate;}
+.utok.marching.ep::before{content:'←';}
+@keyframes march{from{opacity:.5;transform:translateX(-50%) translateX(-2px)}
+  to{opacity:1;transform:translateX(-50%) translateX(2px)}}
+.ui{font-size:11px;line-height:1;flex-shrink:0;}
+.uh{font-family:'Cinzel',serif;font-size:7px;color:var(--gold-l);flex-shrink:0;}
+.uhbar{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(0,0,0,.5);border-radius:0 0 2px 2px;}
+.uhfill{height:100%;border-radius:0 0 2px 2px;transition:width .2s;}
+.hi{background:#4caf50;}.md{background:#ff9800;}.lo{background:#f44336;}
+
+/* ── CANVAS ── */
+#ac{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;}
+
+/* ── BOTTOM ── */
+#bpanel{background:linear-gradient(0deg,#0d0b08,#1a1610);
+  border-top:1px solid var(--border);padding:5px 10px 7px;flex-shrink:0;}
+#bpanel h3{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:4px;}
+#brow{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;}
+.bcard{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);
+  border-radius:5px;padding:5px 8px;min-width:110px;cursor:pointer;
+  transition:border-color .15s,background .15s;position:relative;overflow:hidden;}
+.bcard:hover:not(.bcool){border-color:var(--gold);background:rgba(201,168,76,.04);}
+.bcard.bcool{opacity:.5;cursor:not-allowed;}
+.bn{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);margin-bottom:2px;}
+.br{display:flex;justify-content:space-between;align-items:center;}
+.bs{font-size:9px;color:var(--dim);}.bc{font-size:10px;color:var(--gold-l);font-family:'Cinzel',serif;}
+.bq{font-size:8px;color:var(--dim);margin-top:2px;}
+.bp{position:absolute;bottom:0;left:0;height:2px;background:var(--gold);}
+
+/* ── SPECIAL ABILITY BUTTONS ── */
+#abil-row{display:flex;gap:5px;padding:4px 10px 0;overflow-x:auto;}
+.abil-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);
+  border-radius:5px;padding:4px 8px;cursor:pointer;font-family:'Cinzel',serif;
+  font-size:9px;color:var(--dim);display:flex;align-items:center;gap:4px;
+  transition:all .15s;position:relative;overflow:hidden;}
+.abil-btn.ready{border-color:var(--gold);color:var(--gold-l);
+  box-shadow:0 0 8px rgba(201,168,76,.3);}
+.abil-btn.ready:hover{background:rgba(201,168,76,.08);}
+.abil-btn.cooling{opacity:.5;cursor:not-allowed;}
+.abil-cd{position:absolute;bottom:0;left:0;height:2px;background:var(--gold);transition:width .1s;}
+.abil-icon{font-size:14px;}
+
+/* ── LOG ── */
+#log{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;
+  color:var(--gold);text-shadow:0 0 8px rgba(201,168,76,.8);
+  pointer-events:none;opacity:0;transition:opacity .4s;z-index:20;white-space:nowrap;}
+#log.show{opacity:1;}
+
+/* ── FLOATS ── */
+.dmgf{position:absolute;font-family:'Cinzel',serif;font-size:11px;font-weight:700;
+  pointer-events:none;z-index:50;animation:fup .85s forwards;}
+@keyframes fup{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-32px);opacity:0}}
+
+/* ── TOOLTIP ── */
+#tt{position:fixed;background:var(--bg2);border:1px solid var(--gold);
+  border-radius:5px;padding:7px 11px;font-size:11px;
+  pointer-events:none;z-index:200;max-width:180px;display:none;}
+#tt h4{font-family:'Cinzel',serif;color:var(--gold);margin-bottom:3px;font-size:12px;}
+.tr{display:flex;justify-content:space-between;gap:14px;line-height:1.6;}
+.tv{color:var(--gold-l);}
+
+/* ── TOUCH PANEL ── */
+#tp{position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(0deg,rgba(13,11,8,.98),rgba(26,22,16,.94));
+  border-top:2px solid var(--gold);padding:8px 14px 14px;z-index:80;
+  display:none;flex-direction:column;gap:4px;box-shadow:0 -8px 20px rgba(0,0,0,.7);}
+#tp.show{display:flex;}
+.tph{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:2px;
+  display:flex;align-items:center;justify-content:space-between;}
+.tpc{font-size:10px;color:var(--dim);cursor:pointer;padding:2px 8px;
+  border:1px solid var(--border);border-radius:3px;}
+.tpv{display:flex;align-items:center;gap:8px;background:rgba(42,100,150,.18);
+  border:1px solid var(--blue);border-radius:4px;padding:5px 9px;}
+.tpvi{font-size:16px;}.tpvt{font-size:10px;color:var(--text);}
+.tpvt strong{font-family:'Cinzel',serif;color:var(--gold-l);}
+.tps{font-size:9px;color:var(--dim);}
+
+/* ── GAME OVER ── */
+#go{display:none;position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:300;
+  align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+#go.show{display:flex;}
+#got{font-family:'Cinzel',serif;font-size:40px;font-weight:900;letter-spacing:8px;}
+#got.win{color:var(--gold-l);text-shadow:0 0 40px rgba(240,208,128,.6);}
+#got.lose{color:var(--red-l);text-shadow:0 0 40px rgba(212,63,63,.6);}
+#gosub{color:var(--dim);font-size:14px;}
+#rbtn{background:none;border:2px solid var(--gold);color:var(--gold);
+  font-family:'Cinzel',serif;font-size:12px;letter-spacing:3px;
+  padding:9px 26px;cursor:pointer;border-radius:4px;transition:all .2s;}
+#rbtn:hover{background:rgba(201,168,76,.14);}
+/* Optimizer link */
+#opt-link{font-family:'Cinzel',serif;font-size:9px;color:var(--dim);letter-spacing:2px;
+  text-decoration:none;border:1px solid var(--border);padding:4px 10px;border-radius:3px;
+  transition:all .15s;}
+#opt-link:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ── PAUSE ── */
+#po{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:150;align-items:center;justify-content:center;}
+#po.show{display:flex;}
+.pb{font-family:'Cinzel',serif;font-size:28px;letter-spacing:6px;
+  color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,.6);}
+
+@media(max-width:600px){
+  .hud-title{font-size:12px;letter-spacing:2px;}
+  .bcard{min-width:95px;padding:4px 6px;}
+}
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div id="pr" class="hud-res">
+    <span class="ri">⚔️</span>
+    <div><div class="rl">OR</div><div class="rv" id="pgold">300</div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+    <div class="hud-title">WARLANE</div>
+    <div class="sbtns">
+      <button class="sbtn" id="pbtn">⏸</button>
+      <button class="sbtn on" id="sp1">▶ 1x</button>
+      <button class="sbtn" id="sp2">▶▶ 2x</button>
+      <button class="sbtn" id="sp3">▶▶ 4x</button>
+    </div>
+  </div>
+  <div id="er" class="hud-res">
+    <div style="text-align:right"><div class="rl">OR ENM.</div><div class="rv" id="egold">300</div></div>
+    <span class="ri">🔥</span>
+  </div>
+</div>
+
+<div id="evt-banner">⚡ Événement !</div>
+
+<div id="bwrap">
+  <div id="llabels">
+    <span class="lbl p">◀ VOTRE CAMP</span>
+    <span class="lbl e">CAMP ENNEMI ▶</span>
+  </div>
+  <div id="lane"></div>
+  <canvas id="ac"></canvas>
+  <div id="log"></div>
+</div>
+
+<div id="bpanel">
+  <h3>⚒ ATELIERS</h3>
+  <div id="brow"></div>
+  <div id="abil-row"></div>
+</div>
+
+<div id="tt"></div>
+
+<div id="tp">
+  <div class="tph"><span>ORDONNER DÉPLACEMENT</span><span class="tpc" id="tpcancel">✕</span></div>
+  <div class="tpv">
+    <span class="tpvi" id="tpicon">🗡️</span>
+    <div class="tpvt"><strong id="tpname">—</strong><br><span id="tpstats"></span></div>
+  </div>
+  <div class="tps" id="tpsub">Cases ✦ = destinations. L'unité avancera case par case.</div>
+</div>
+
+<div id="go">
+  <div id="got" class="win">VICTOIRE</div>
+  <div id="gosub">—</div>
+  <button id="rbtn">NOUVELLE PARTIE</button>
+  <a href="./optimizer.html" id="opt-link">⚗ OPTIMISEUR</a>
+</div>
+<div id="po"><div class="pb">— PAUSE —</div></div>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>

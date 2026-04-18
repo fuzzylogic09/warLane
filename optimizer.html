@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WarLane — Optimiseur</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@400;700&display=swap');
+:root{
+  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a1f;
+  --bg:#07090d;--bg2:#0e1118;--bg3:#141820;--bg4:#1c2230;
+  --border:#2a3040;--border-l:#3a4560;
+  --text:#b8c8e0;--dim:#5a6880;
+  --green:#22c55e;--green-d:#15803d;
+  --red:#ef4444;--blue:#3b82f6;--purple:#a855f7;
+  --accent:#00e5ff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;
+  min-height:100vh;overflow-x:hidden;}
+
+/* ─ HEADER ─ */
+header{
+  background:linear-gradient(180deg,var(--bg2) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);
+  padding:16px 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+}
+.logo{font-family:'Cinzel',serif;font-size:22px;font-weight:900;
+  color:var(--gold);letter-spacing:4px;
+  text-shadow:0 0 24px rgba(201,168,76,.4);}
+.logo span{font-size:10px;letter-spacing:6px;color:var(--dim);display:block;margin-top:-2px;}
+.back-btn{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--dim);
+  text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:4px;
+  transition:all .15s;}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ─ LAYOUT ─ */
+.container{max-width:1400px;margin:0 auto;padding:24px;display:grid;
+  grid-template-columns:320px 1fr;gap:20px;}
+@media(max-width:900px){.container{grid-template-columns:1fr;}}
+
+/* ─ PANELS ─ */
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:18px;}
+.panel-title{font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;
+  color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.panel-title::before{content:'';flex:1;height:1px;background:var(--border);}
+.panel-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ─ FORM CONTROLS ─ */
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:11px;letter-spacing:1px;color:var(--dim);margin-bottom:4px;}
+.field input[type=number],.field input[type=range],.field select{
+  width:100%;background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;
+  font-size:11px;padding:5px 8px;outline:none;transition:border-color .15s;}
+.field input[type=number]:focus,.field select:focus{border-color:var(--gold);}
+.field-row{display:flex;gap:8px;align-items:center;}
+.field-row input[type=range]{flex:1;}
+.field-row .val{font-family:'JetBrains Mono',monospace;font-size:11px;
+  color:var(--gold-l);min-width:50px;text-align:right;}
+
+/* Range group */
+.range-group{background:var(--bg3);border:1px solid var(--border);border-radius:6px;
+  padding:10px;margin-bottom:8px;}
+.range-group-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:var(--dim);margin-bottom:8px;}
+.range-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.range-row label{font-size:10px;color:var(--dim);min-width:110px;}
+.range-row input{width:60px;background:var(--bg4);border:1px solid var(--border);
+  border-radius:3px;color:var(--gold-l);font-family:'JetBrains Mono',monospace;
+  font-size:10px;padding:2px 5px;outline:none;}
+.range-sep{color:var(--dim);font-size:10px;}
+
+/* ─ BUTTON ─ */
+.btn{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;
+  padding:10px 20px;border-radius:5px;cursor:pointer;transition:all .2s;
+  border:none;display:flex;align-items:center;gap:6px;justify-content:center;}
+.btn-primary{background:linear-gradient(135deg,var(--gold-d),var(--gold));
+  color:#0d0b08;font-weight:700;box-shadow:0 0 20px rgba(201,168,76,.25);}
+.btn-primary:hover:not(:disabled){box-shadow:0 0 30px rgba(201,168,76,.5);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-secondary{background:var(--bg3);border:1px solid var(--border);color:var(--dim);}
+.btn-secondary:hover:not(:disabled){border-color:var(--gold);color:var(--gold);}
+.btn-danger{background:var(--bg3);border:1px solid var(--red);color:var(--red);}
+.btn-danger:hover:not(:disabled){background:rgba(239,68,68,.1);}
+.btn-sm{font-size:9px;padding:5px 12px;letter-spacing:2px;}
+.btn-full{width:100%;}
+
+/* ─ PROGRESS ─ */
+#progress-wrap{display:none;margin-top:14px;}
+#progress-wrap.show{display:block;}
+.progress-bar-outer{background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;overflow:hidden;height:8px;margin-bottom:6px;}
+.progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold));
+  transition:width .3s;width:0%;}
+.progress-label{font-size:10px;color:var(--dim);text-align:center;font-family:'JetBrains Mono',monospace;}
+
+/* ─ STATUS BAR ─ */
+#status-bar{background:var(--bg3);border:1px solid var(--border);border-radius:4px;
+  padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--dim);margin-top:8px;min-height:32px;line-height:1.5;}
+#status-bar .highlight{color:var(--gold-l);}
+#status-bar .good{color:var(--green);}
+#status-bar .warn{color:#f59e0b;}
+
+/* ─ STATS CARDS ─ */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  padding:12px;text-align:center;}
+.stat-card .sv{font-family:'Cinzel',serif;font-size:24px;font-weight:700;color:var(--gold-l);}
+.stat-card .sl{font-size:9px;letter-spacing:2px;color:var(--dim);margin-top:2px;}
+
+/* ─ CHARTS ─ */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:700px){.charts-grid{grid-template-columns:1fr;}}
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;}
+.chart-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:var(--dim);margin-bottom:10px;}
+.chart-canvas-wrap{position:relative;height:180px;}
+
+/* ─ TOP TABLE ─ */
+.top-table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  overflow:hidden;margin-bottom:20px;}
+.top-table-header{display:grid;grid-template-columns:40px 80px 80px 80px 80px 80px 1fr 80px;
+  gap:0;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border);}
+.th{font-family:'Cinzel',serif;font-size:8px;letter-spacing:2px;color:var(--dim);}
+.top-table-body{max-height:320px;overflow-y:auto;}
+.top-row{display:grid;grid-template-columns:40px 80px 80px 80px 80px 80px 1fr 80px;
+  gap:0;padding:7px 14px;border-bottom:1px solid rgba(42,48,64,.5);
+  transition:background .1s;cursor:pointer;font-size:11px;align-items:center;}
+.top-row:hover{background:rgba(201,168,76,.04);}
+.top-row.selected{background:rgba(201,168,76,.08);border-left:2px solid var(--gold);}
+.rank{font-family:'Cinzel',serif;font-size:12px;color:var(--dim);}
+.rank.gold{color:#ffd700;}.rank.silver{color:#c0c0c0;}.rank.bronze{color:#cd7f32;}
+.score-val{font-family:'JetBrains Mono',monospace;color:var(--gold-l);font-weight:700;}
+.winner-badge{font-size:9px;padding:2px 6px;border-radius:3px;}
+.winner-badge.p{background:rgba(59,130,246,.25);color:#93c5fd;}
+.winner-badge.e{background:rgba(239,68,68,.25);color:#fca5a5;}
+.winner-badge.draw{background:rgba(90,104,128,.25);color:var(--dim);}
+.mono{font-family:'JetBrains Mono',monospace;font-size:10px;}
+
+/* ─ SCORE BAR ─ */
+.score-bar-wrap{display:flex;align-items:center;gap:6px;}
+.score-bar-bg{flex:1;height:4px;background:var(--bg3);border-radius:2px;}
+.score-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold-d),var(--gold));}
+
+/* ─ HISTORY ─ */
+.history-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:14px;margin-bottom:20px;}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.history-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;}
+.history-item{display:flex;align-items:center;gap:10px;padding:6px 10px;
+  background:var(--bg3);border-radius:4px;border:1px solid var(--border);
+  cursor:pointer;transition:border-color .1s;font-size:10px;}
+.history-item:hover{border-color:var(--gold-d);}
+.history-item .htime{font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:9px;min-width:70px;}
+.history-item .hruns{color:var(--dim);}
+.history-item .hscore{font-family:'JetBrains Mono',monospace;color:var(--gold-l);font-weight:700;}
+
+/* ─ DETAIL PANEL ─ */
+#detail-panel{display:none;background:var(--bg2);border:1px solid var(--gold-d);
+  border-radius:8px;padding:16px;margin-bottom:20px;}
+#detail-panel.show{display:block;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.detail-item label{font-size:9px;letter-spacing:1px;color:var(--dim);}
+.detail-item .dv{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold-l);margin-top:2px;}
+.breakdown-bars{display:flex;flex-direction:column;gap:5px;}
+.bb-row{display:flex;align-items:center;gap:8px;font-size:10px;}
+.bb-label{min-width:80px;color:var(--dim);}
+.bb-bar-bg{flex:1;height:6px;background:var(--bg3);border-radius:3px;}
+.bb-bar-fill{height:100%;border-radius:3px;}
+.bb-val{font-family:'JetBrains Mono',monospace;min-width:40px;text-align:right;color:var(--text);}
+pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radius:5px;
+  padding:12px;font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:var(--text);max-height:200px;overflow:auto;white-space:pre-wrap;margin-top:10px;}
+
+/* ─ TABS ─ */
+.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0;}
+.tab{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);
+  padding:6px 14px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all .15s;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-content{display:none;}.tab-content.active{display:block;}
+
+/* ─ SCROLLBAR ─ */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg3);}
+::-webkit-scrollbar-thumb{background:var(--border-l);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--gold-d);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">WARLANE <span>OPTIMISEUR DE GAMEPLAY</span></div>
+  <a href="./index.html" class="back-btn">◀ JEU</a>
+</header>
+
+<div class="container">
+  <!-- LEFT: Controls -->
+  <aside>
+    <div class="panel">
+      <div class="panel-title">CONFIGURATION</div>
+
+      <div class="field">
+        <label>NOMBRE DE RUNS</label>
+        <input type="number" id="runs-input" value="200" min="10" max="5000" step="10">
+      </div>
+      <div class="field">
+        <label>DURÉE MAX PAR PARTIE (s)</label>
+        <div class="field-row">
+          <input type="range" id="max-dur-range" min="30" max="600" value="300" step="10"
+            oninput="document.getElementById('max-dur-val').textContent=this.value+'s'">
+          <span class="val" id="max-dur-val">300s</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>DT SIMULATION (ms)</label>
+        <div class="field-row">
+          <input type="range" id="dt-range" min="16" max="500" value="100" step="16"
+            oninput="document.getElementById('dt-val').textContent=this.value+'ms'">
+          <span class="val" id="dt-val">100ms</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>SEED (0 = aléatoire)</label>
+        <input type="number" id="seed-input" value="0" min="0">
+      </div>
+
+      <!-- Param ranges -->
+      <div class="panel-title" style="margin-top:16px">PLAGES DE PARAMÈTRES</div>
+
+      <div id="param-ranges">
+        <!-- Generated by JS -->
+      </div>
+
+      <button class="btn btn-primary btn-full" id="run-btn" onclick="startOptimization()">
+        ⚗ LANCER L'OPTIMISATION
+      </button>
+      <button class="btn btn-secondary btn-full" id="stop-btn" onclick="stopOptimization()"
+        disabled style="margin-top:6px;">
+        ■ ARRÊTER
+      </button>
+
+      <div id="progress-wrap">
+        <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+        <div class="progress-label" id="progress-label">0 / 0</div>
+      </div>
+      <div id="status-bar">En attente…</div>
+    </div>
+
+    <!-- History -->
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-title">HISTORIQUE</div>
+      <div class="history-header">
+        <span style="font-size:10px;color:var(--dim)" id="history-count">0 batch(es)</span>
+        <button class="btn btn-danger btn-sm" onclick="clearHistory()">EFFACER</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </aside>
+
+  <!-- RIGHT: Results -->
+  <main>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="sv" id="stat-runs">—</div><div class="sl">RUNS</div></div>
+      <div class="stat-card"><div class="sv" id="stat-best">—</div><div class="sl">MEILLEUR SCORE</div></div>
+      <div class="stat-card"><div class="sv" id="stat-winrate">—</div><div class="sl">WIN RATE J.</div></div>
+      <div class="stat-card"><div class="sv" id="stat-avgdur">—</div><div class="sl">DURÉE MOY.</div></div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-wrap">
+        <div class="chart-title">DISTRIBUTION DES SCORES</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-scores"></canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">DURÉES DE PARTIES</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-durations"></canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">WIN RATE PAR CONFIG (top 20)</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-winrate"></canvas></div>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-title">COMPOSANTES DU SCORE (top 10)</div>
+        <div class="chart-canvas-wrap"><canvas id="chart-breakdown"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Detail panel -->
+    <div id="detail-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-family:'Cinzel',serif;font-size:11px;color:var(--gold);letter-spacing:3px;">
+          PRESET SÉLECTIONNÉ</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="exportPreset()">⬇ EXPORTER JSON</button>
+          <button class="btn btn-primary btn-sm" onclick="injectPreset()">⚙ INJECTER</button>
+        </div>
+      </div>
+      <div class="detail-grid" id="detail-meta"></div>
+      <div class="breakdown-bars" id="detail-breakdown"></div>
+      <details style="margin-top:12px;">
+        <summary style="cursor:pointer;font-size:10px;color:var(--dim);letter-spacing:1px;">
+          VOIR JSON CONFIG</summary>
+        <pre class="config-json" id="detail-json"></pre>
+      </details>
+    </div>
+
+    <!-- Top table -->
+    <div class="top-table-wrap">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;
+        border-bottom:1px solid var(--border);">
+        <span style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--gold)">
+          TOP PRESETS</span>
+        <button class="btn btn-secondary btn-sm" onclick="exportBest()">⬇ EXPORTER TOP 20</button>
+      </div>
+      <div class="top-table-header">
+        <div class="th">#</div>
+        <div class="th">SCORE</div>
+        <div class="th">DURÉE</div>
+        <div class="th">VAINQUEUR</div>
+        <div class="th">CAPTURES</div>
+        <div class="th">FRONT</div>
+        <div class="th">BARRE</div>
+        <div class="th">ACTION</div>
+      </div>
+      <div class="top-table-body" id="top-table-body">
+        <div style="padding:30px;text-align:center;color:var(--dim);font-size:12px;">
+          Lancez une optimisation pour voir les résultats
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js';
+
+// ─────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────
+let worker = null;
+let currentResults = [];
+let selectedPreset = null;
+let baseConfig = null;
+let scoringWeights = null;
+let charts = {};
+let isRunning = false;
+
+const HISTORY_KEY = 'warlane_opt_history';
+
+// ─────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────
+async function init() {
+  baseConfig = await fetch('./config/gameplay.default.json').then(r => r.json());
+  scoringWeights = await fetch('./config/scoring.default.json').then(r => r.json());
+  buildParamRanges();
+  initCharts();
+  loadHistory();
+}
+
+// ─────────────────────────────────────────────────
+// Param range UI builder
+// ─────────────────────────────────────────────────
+const DISPLAY_PARAMS = {
+  'GBASE':       { label: 'Or/s base', group: 'Économie' },
+  'GCELL':       { label: 'Or/s par case', group: 'Économie' },
+  'CQRATE':      { label: 'Vitesse conquête', group: 'Combat' },
+  'AITICK':      { label: 'Tick IA (ms)', group: 'IA' },
+  'AI_MOVES':    { label: 'Mouvements IA/tick', group: 'IA' },
+  'units.warrior.hp':   { label: 'Guerrier PV', group: 'Unités' },
+  'units.warrior.dmg':  { label: 'Guerrier Dégâts', group: 'Unités' },
+  'units.warrior.cost': { label: 'Guerrier Coût', group: 'Unités' },
+  'units.archer.hp':    { label: 'Archer PV', group: 'Unités' },
+  'units.archer.dmg':   { label: 'Archer Dégâts', group: 'Unités' },
+  'units.catapult.dmg': { label: 'Catapulte Dégâts', group: 'Unités' },
+  'units.catapult.cost':{ label: 'Catapulte Coût', group: 'Unités' },
+  'MOVE_TICK':   { label: 'Tick mouvement (ms)', group: 'Mouvement' },
+};
+
+function buildParamRanges() {
+  const container = document.getElementById('param-ranges');
+  const groups = {};
+  for (const [key, meta] of Object.entries(DISPLAY_PARAMS)) {
+    if (!groups[meta.group]) groups[meta.group] = [];
+    groups[meta.group].push({ key, label: meta.label });
+  }
+  for (const [group, params] of Object.entries(groups)) {
+    const g = document.createElement('div');
+    g.className = 'range-group';
+    g.innerHTML = `<div class="range-group-title">${group.toUpperCase()}</div>`;
+    params.forEach(({ key, label }) => {
+      const [min, max] = DEFAULT_PARAM_SPACE[key] || [0, 100];
+      g.innerHTML += `
+        <div class="range-row">
+          <label>${label}</label>
+          <input type="number" id="rmin-${key.replace(/\./g,'-')}" value="${min}" step="any">
+          <span class="range-sep">–</span>
+          <input type="number" id="rmax-${key.replace(/\./g,'-')}" value="${max}" step="any">
+        </div>`;
+    });
+    container.appendChild(g);
+  }
+}
+
+function getRangeOverrides() {
+  const overrides = {};
+  for (const key of Object.keys(DISPLAY_PARAMS)) {
+    const safeKey = key.replace(/\./g, '-');
+    const minEl = document.getElementById('rmin-' + safeKey);
+    const maxEl = document.getElementById('rmax-' + safeKey);
+    if (minEl && maxEl) {
+      overrides[key] = [parseFloat(minEl.value), parseFloat(maxEl.value)];
+    }
+  }
+  return overrides;
+}
+
+// ─────────────────────────────────────────────────
+// Optimization runner
+// ─────────────────────────────────────────────────
+window.startOptimization = function() {
+  if (isRunning) return;
+  isRunning = true;
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('stop-btn').disabled = false;
+  document.getElementById('progress-wrap').classList.add('show');
+  setStatus('Démarrage du worker…');
+  currentResults = [];
+
+  const runs = parseInt(document.getElementById('runs-input').value);
+  const maxDur = parseInt(document.getElementById('max-dur-range').value) * 1000;
+  const dt = parseInt(document.getElementById('dt-range').value);
+  const seedVal = parseInt(document.getElementById('seed-input').value);
+  const seed = seedVal === 0 ? Date.now() : seedVal;
+
+  worker = new Worker('./src/optimizer-ui/workers/simWorker.js', { type: 'module' });
+
+  worker.onmessage = (e) => {
+    const { type, done, total, best, result } = e.data;
+    if (type === 'progress') {
+      updateProgress(done, total, best);
+    }
+    if (type === 'done') {
+      finishOptimization(result);
+    }
+  };
+
+  worker.onerror = (err) => {
+    setStatus(`<span class="warn">Erreur worker: ${err.message}</span>`);
+    stopOptimization();
+  };
+
+  worker.postMessage({
+    type: 'run',
+    options: {
+      runs,
+      baseConfig,
+      scoringWeights,
+      rangeOverrides: getRangeOverrides(),
+      dt,
+      maxDurationMs: maxDur,
+      seed,
+      topN: 20,
+    }
+  });
+};
+
+window.stopOptimization = function() {
+  if (worker) { worker.terminate(); worker = null; }
+  isRunning = false;
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('stop-btn').disabled = true;
+  setStatus('Arrêté.');
+};
+
+function updateProgress(done, total, best) {
+  const pct = (done / total * 100).toFixed(1);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `${done} / ${total} runs (${pct}%)`;
+  if (best) {
+    setStatus(`<span class="highlight">Run ${best.runIndex + 1}</span> — Meilleur score: <span class="good">${best.score?.toFixed(4) ?? '—'}</span>`);
+    // Live update stats card
+    document.getElementById('stat-best').textContent = best.score?.toFixed(3) ?? '—';
+  }
+  document.getElementById('stat-runs').textContent = done;
+}
+
+function finishOptimization(result) {
+  isRunning = false;
+  worker = null;
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('stop-btn').disabled = true;
+
+  if (!result) { setStatus('Aucun résultat.'); return; }
+
+  const { top, aggregate, totalRuns, bestScore } = result;
+  currentResults = top;
+
+  // Update stat cards
+  document.getElementById('stat-runs').textContent = totalRuns;
+  document.getElementById('stat-best').textContent = bestScore?.toFixed(3) ?? '—';
+  document.getElementById('stat-winrate').textContent =
+    aggregate?.winRatePlayer !== undefined ? (aggregate.winRatePlayer * 100).toFixed(0) + '%' : '—';
+  document.getElementById('stat-avgdur').textContent =
+    aggregate?.avgDurationMs ? (aggregate.avgDurationMs / 1000).toFixed(0) + 's' : '—';
+
+  setStatus(`<span class="good">✓ Terminé — ${totalRuns} runs — Meilleur: ${bestScore?.toFixed(4) ?? '—'}</span>`);
+
+  updateCharts(top, aggregate);
+  renderTopTable(top);
+  saveHistory(result);
+}
+
+// ─────────────────────────────────────────────────
+// Charts
+// ─────────────────────────────────────────────────
+function initCharts() {
+  const opts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#5a6880', font: { size: 9 } } } },
+    scales: {
+      x: { ticks: { color: '#5a6880', font: { size: 9 } }, grid: { color: '#1c2230' } },
+      y: { ticks: { color: '#5a6880', font: { size: 9 } }, grid: { color: '#1c2230' } },
+    }
+  };
+
+  charts.scores = new Chart(document.getElementById('chart-scores').getContext('2d'), {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Score', data: [], backgroundColor: 'rgba(201,168,76,.6)', borderColor: '#c9a84c', borderWidth: 1 }] },
+    options: { ...opts, plugins: { ...opts.plugins, legend: { display: false } } }
+  });
+
+  charts.durations = new Chart(document.getElementById('chart-durations').getContext('2d'), {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Durée (s)', data: [], backgroundColor: 'rgba(59,130,246,.5)', borderColor: '#3b82f6', borderWidth: 1 }] },
+    options: { ...opts, plugins: { ...opts.plugins, legend: { display: false } } }
+  });
+
+  charts.winrate = new Chart(document.getElementById('chart-winrate').getContext('2d'), {
+    type: 'bar',
+    data: { labels: [], datasets: [
+      { label: 'Joueur', data: [], backgroundColor: 'rgba(59,130,246,.7)' },
+      { label: 'Ennemi', data: [], backgroundColor: 'rgba(239,68,68,.7)' },
+    ]},
+    options: opts
+  });
+
+  charts.breakdown = new Chart(document.getElementById('chart-breakdown').getContext('2d'), {
+    type: 'radar',
+    data: { labels: ['Balance', 'Durée', 'Diversité', 'Front'], datasets: [] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#5a6880', font: { size: 9 } } } },
+      scales: { r: { ticks: { color: '#5a6880', font: { size: 8 } }, grid: { color: '#1c2230' },
+        pointLabels: { color: '#8a7d5a', font: { size: 9 } }, min: 0, max: 1 } }
+    }
+  });
+}
+
+function updateCharts(top, aggregate) {
+  // Scores histogram
+  const scoreLabels = top.map((_, i) => `#${i + 1}`);
+  const scoreData = top.map(r => r.score);
+  charts.scores.data.labels = scoreLabels;
+  charts.scores.data.datasets[0].data = scoreData;
+  charts.scores.update();
+
+  // Durations
+  const durData = top.map(r => (r.stats.durationMs / 1000).toFixed(0));
+  charts.durations.data.labels = scoreLabels;
+  charts.durations.data.datasets[0].data = durData;
+  charts.durations.update();
+
+  // Win rate per top result
+  const wr = top.slice(0, 20).map(r => r.stats.winner === 'player' ? 100 : 0);
+  const wr2 = top.slice(0, 20).map(r => r.stats.winner === 'enemy' ? 100 : 0);
+  charts.winrate.data.labels = top.slice(0, 20).map((_, i) => `#${i + 1}`);
+  charts.winrate.data.datasets[0].data = wr;
+  charts.winrate.data.datasets[1].data = wr2;
+  charts.winrate.update();
+
+  // Breakdown radar for top 5
+  const COLORS = ['rgba(201,168,76,.8)', 'rgba(59,130,246,.7)', 'rgba(168,85,247,.7)', 'rgba(34,197,94,.7)', 'rgba(239,68,68,.7)'];
+  charts.breakdown.data.datasets = top.slice(0, 5).map((r, i) => ({
+    label: `#${i + 1}`,
+    data: [
+      r.breakdown?.balance ?? 0,
+      r.breakdown?.duration ?? 0,
+      r.breakdown?.diversity ?? 0,
+      r.breakdown?.frontline ?? 0,
+    ],
+    borderColor: COLORS[i],
+    backgroundColor: COLORS[i].replace('.8', '.1').replace('.7', '.1'),
+    borderWidth: 2,
+    pointRadius: 3,
+  }));
+  charts.breakdown.update();
+}
+
+// ─────────────────────────────────────────────────
+// Top table
+// ─────────────────────────────────────────────────
+function renderTopTable(top) {
+  const body = document.getElementById('top-table-body');
+  body.innerHTML = '';
+  top.forEach((item, i) => {
+    const row = document.createElement('div');
+    row.className = 'top-row' + (selectedPreset === item ? ' selected' : '');
+    const rankCls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const wBadge = item.stats.winner === 'player' ? 'p' : item.stats.winner === 'enemy' ? 'e' : 'draw';
+    const wLabel = item.stats.winner === 'player' ? '🔵 Joueur' : item.stats.winner === 'enemy' ? '🔴 Ennemi' : '—';
+    const dur = (item.stats.durationMs / 1000).toFixed(0) + 's';
+    const pct = Math.round(item.score * 100);
+    row.innerHTML = `
+      <div class="rank ${rankCls}">${i === 0 ? '👑' : i + 1}</div>
+      <div class="score-val">${item.score.toFixed(4)}</div>
+      <div class="mono">${dur}</div>
+      <div><span class="winner-badge ${wBadge}">${wLabel}</span></div>
+      <div class="mono">${item.stats.cellCaptures ?? '—'}</div>
+      <div class="mono">${item.stats.frontlineChanges ?? '—'}</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div><button class="btn btn-secondary btn-sm" onclick="selectPreset(${i})">DÉTAIL</button></div>`;
+    body.appendChild(row);
+  });
+}
+
+window.selectPreset = function(idx) {
+  selectedPreset = currentResults[idx];
+  if (!selectedPreset) return;
+  renderTopTable(currentResults); // refresh selection highlight
+
+  const panel = document.getElementById('detail-panel');
+  panel.classList.add('show');
+
+  // Meta
+  const meta = document.getElementById('detail-meta');
+  meta.innerHTML = `
+    <div class="detail-item"><label>SCORE GLOBAL</label><div class="dv">${selectedPreset.score.toFixed(5)}</div></div>
+    <div class="detail-item"><label>DURÉE</label><div class="dv">${(selectedPreset.stats.durationMs/1000).toFixed(1)}s</div></div>
+    <div class="detail-item"><label>VAINQUEUR</label><div class="dv">${selectedPreset.stats.winner ?? '—'}</div></div>
+    <div class="detail-item"><label>SEED</label><div class="dv">${selectedPreset.seed}</div></div>
+    <div class="detail-item"><label>CAPTURES</label><div class="dv">${selectedPreset.stats.cellCaptures ?? '—'}</div></div>
+    <div class="detail-item"><label>FRONT CHANGES</label><div class="dv">${selectedPreset.stats.frontlineChanges ?? '—'}</div></div>`;
+
+  // Breakdown bars
+  const b = selectedPreset.breakdown || {};
+  const bars = document.getElementById('detail-breakdown');
+  const components = [
+    { key: 'balance', label: 'Balance', color: '#c9a84c' },
+    { key: 'duration', label: 'Durée', color: '#3b82f6' },
+    { key: 'diversity', label: 'Diversité', color: '#a855f7' },
+    { key: 'frontline', label: 'Dynamisme', color: '#22c55e' },
+  ];
+  bars.innerHTML = components.map(c => `
+    <div class="bb-row">
+      <span class="bb-label">${c.label}</span>
+      <div class="bb-bar-bg"><div class="bb-bar-fill" style="width:${((b[c.key]||0)*100).toFixed(0)}%;background:${c.color}"></div></div>
+      <span class="bb-val">${(b[c.key]||0).toFixed(3)}</span>
+    </div>`).join('');
+
+  // JSON
+  document.getElementById('detail-json').textContent =
+    JSON.stringify(selectedPreset.config, null, 2);
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+};
+
+// ─────────────────────────────────────────────────
+// Export & inject
+// ─────────────────────────────────────────────────
+window.exportPreset = function() {
+  if (!selectedPreset) return;
+  downloadJSON(selectedPreset.config, `warlane_preset_${Date.now()}.json`);
+};
+
+window.exportBest = function() {
+  if (!currentResults.length) return;
+  downloadJSON({ top: currentResults }, `warlane_top20_${Date.now()}.json`);
+};
+
+window.injectPreset = function() {
+  if (!selectedPreset) return;
+  localStorage.setItem('warlane_active_config', JSON.stringify(selectedPreset.config));
+  alert('✓ Preset injecté ! Il sera utilisé au prochain démarrage du jeu (si main.js le lit).');
+};
+
+function downloadJSON(data, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  a.download = filename;
+  a.click();
+}
+
+// ─────────────────────────────────────────────────
+// History (localStorage)
+// ─────────────────────────────────────────────────
+function saveHistory(result) {
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  history.unshift({
+    ts: Date.now(),
+    runs: result.totalRuns,
+    bestScore: result.bestScore,
+    aggregate: result.aggregate,
+    bestConfig: result.bestConfig,
+    top: result.top?.slice(0, 5),
+  });
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 20)));
+  loadHistory();
+}
+
+function loadHistory() {
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  const list = document.getElementById('history-list');
+  document.getElementById('history-count').textContent = history.length + ' batch(es)';
+  list.innerHTML = history.length === 0
+    ? '<div style="color:var(--dim);font-size:10px;text-align:center;padding:10px">Aucun historique</div>'
+    : history.map((h, i) => `
+      <div class="history-item" onclick="loadHistoryItem(${i})">
+        <span class="htime">${new Date(h.ts).toLocaleTimeString()}</span>
+        <span class="hruns">${h.runs} runs</span>
+        <span class="hscore">${h.bestScore?.toFixed(4) ?? '—'}</span>
+        <span style="margin-left:auto;font-size:9px;color:var(--dim)">W:${((h.aggregate?.winRatePlayer||0)*100).toFixed(0)}%</span>
+      </div>`).join('');
+}
+
+window.loadHistoryItem = function(idx) {
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  const h = history[idx];
+  if (!h) return;
+  currentResults = h.top || [];
+  renderTopTable(currentResults);
+  setStatus(`<span class="highlight">Historique chargé</span> — ${h.runs} runs, score: <span class="good">${h.bestScore?.toFixed(4) ?? '—'}</span>`);
+};
+
+window.clearHistory = function() {
+  if (!confirm('Effacer tout l\'historique ?')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  loadHistory();
+};
+
+// ─────────────────────────────────────────────────
+// Utils
+// ─────────────────────────────────────────────────
+function setStatus(html) {
+  document.getElementById('status-bar').innerHTML = html;
+}
+
+// Expose for HTML buttons
+window.startOptimization = window.startOptimization;
+window.stopOptimization = window.stopOptimization;
+
+init();
+</script>
+</body>
+</html>
