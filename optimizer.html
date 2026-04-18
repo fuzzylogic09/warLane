@@ -412,7 +412,7 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
 </div>
 
 <script type="module">
-import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js';
+import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js?v=2';
 
 // ── Theme ──────────────────────────────────────
 const THEME_KEY = 'warlane_theme';
@@ -513,7 +513,7 @@ window.startOptimization = function() {
   const seedVal = parseInt(document.getElementById('seed-input').value);
   const seed    = seedVal === 0 ? Date.now() : seedVal;
 
-  worker = new Worker('./src/optimizer-ui/workers/simWorker.js', { type: 'module' });
+  worker = new Worker('./src/optimizer-ui/workers/simWorker.js?v=2', { type: 'module' });
   worker.onmessage = ({ data }) => {
     if (data.type === 'progress') updateProgress(data.done, data.total, data.best);
     if (data.type === 'done')     finishOptimization(data.result);
