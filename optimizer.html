@@ -428,13 +428,14 @@ function applyTheme(dark) {
   }
 }
 window.toggleTheme = () => applyTheme(!document.documentElement.classList.contains('dark'));
-// Default = light; only go dark if explicitly saved
-applyTheme(localStorage.getItem(THEME_KEY) === 'dark');
+
 
 // ── State ──────────────────────────────────────
 let worker = null, currentResults = [], selectedPreset = null;
 let baseConfig = null, scoringWeights = null;
 const charts = {};
+// Default = light; only go dark if explicitly saved
+applyTheme(localStorage.getItem(THEME_KEY) === 'dark');
 let isRunning = false;
 const HISTORY_KEY = 'warlane_opt_history';
 
