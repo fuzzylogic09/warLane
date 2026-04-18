@@ -24,20 +24,22 @@ export function scoreResult(stats, weights) {
   } = weights;
 
   // ── 1. Balance score ──────────────────────────────────────────
-  // Reward close games (neither side stomped immediately)
-  // Based on final territory ratio (use winner as proxy)
+  // Reward close games throughout their duration.
+  // Uses the MEAN territory ratio across all samples (not just the final snapshot,
+  // which is always 0 or 10 when someone wins).
   let balanceScore = 0;
   if (stats.durationMs > 5000) {
     const th = stats.territoryHistory;
-    if (th.length > 0) {
-      const last = th[th.length - 1];
-      const total = 10; // NC
-      const ratio = last.playerCells / total; // 0..1
-      // Ideal ratio = 0.5 (even game). Score peaks at 0.5.
-      balanceScore = 1 - Math.abs(ratio - 0.5) * 2;
+    if (th.length >= 2) {
+      const NC = 10;
+      // Mean ratio over time (excludes the final sample where one side has 0 cells)
+      const samples = th.slice(0, -1); // drop last sample (end-state)
+      const meanRatio = samples.reduce((s, p) => s + p.playerCells / NC, 0) / samples.length;
+      // Peak at 0.5 → score 1.0; at 0 or 1 → score 0.0
+      balanceScore = 1 - Math.abs(meanRatio - 0.5) * 2;
     } else {
-      // Fallback: draw between winners is considered perfectly balanced
-      balanceScore = stats.winner ? 0.5 : 1;
+      // No history yet — short game, consider it unbalanced
+      balanceScore = 0.1;
     }
   }
 
@@ -57,11 +59,17 @@ export function scoreResult(stats, weights) {
   const diversityScore = Math.min(1, (typeCount / 3) * 0.6 + (abilCount / 3) * 0.4);
 
   // ── 4. Frontline dynamics score ───────────────────────────────
-  // Reward high frontline movement (not static)
+  // Reward high frontline movement (not static).
+  // Scale changes relative to game duration to avoid penalising short games.
   const flChanges = stats.frontlineChanges || 0;
   const flHistory = stats.frontlineHistory || [];
-  const flVariance = _variance(flHistory);
-  const frontlineDynamicsScore = Math.min(1, flChanges / 20 * 0.5 + Math.min(flVariance, 4) / 4 * 0.5);
+  const flVariance = _variance(flHistory.filter(v => v >= 0)); // ignore -1 (no frontline)
+  // Normalise: expect ~1 change per 10s of sim time
+  const expectedChanges = Math.max(1, stats.durationMs / 10000);
+  const changeScore = Math.min(1, flChanges / expectedChanges);
+  // Variance across NC=10 cells: max meaningful variance ~6
+  const varScore = Math.min(1, flVariance / 6);
+  const frontlineDynamicsScore = changeScore * 0.6 + varScore * 0.4;
 
   // ── Stalemate penalty ─────────────────────────────────────────
   const stalematePenalty = stats.stalemateMs > stalemateThresholdMs

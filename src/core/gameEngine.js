@@ -307,11 +307,12 @@ export class GameEngine {
     tryBuild('range', 'archer', AI_MAX_UNITS, 3);
     tryBuild('foundry', 'catapult', AI_MAX_UNITS, 2, () => total >= 2 && this.rng() < AI_CATAPULT_CHANCE);
 
-    // Move — advance toward opponent
+    // Move — advance toward opponent (identical logic for both sides)
     let moves = 0;
+    // Both sides: sort cells closest to the frontline first
     const sorted = isPlayer
-      ? [...ownedCells].sort((a, b) => b - a)  // player: advance rightmost first
-      : [...ownedCells].sort((a, b) => a - b);  // enemy: advance leftmost first
+      ? [...ownedCells].sort((a, b) => b - a)  // player: rightmost (closest to enemy) first
+      : [...ownedCells].sort((a, b) => a - b);  // enemy: leftmost (closest to player) first
 
     for (const ci of sorted) {
       if (moves >= AI_MOVES) break;
@@ -602,8 +603,19 @@ export class GameEngine {
         break;
       }
       case 'fortify': {
-        const ci = this._playerFront();
-        if (ci !== -1) s.cells[ci].morale = Math.min(3, (s.cells[ci].morale || 0) + 1);
+        const owner = evt.params.owner;
+        // Find the frontmost cell for this owner
+        let frontCi = -1;
+        if (owner === 'player') {
+          for (let i = this.config.NC - 1; i >= 0; i--) {
+            if (this.state.cells[i].owner === 'player') { frontCi = i; break; }
+          }
+        } else {
+          for (let i = 0; i < this.config.NC; i++) {
+            if (this.state.cells[i].owner === 'enemy') { frontCi = i; break; }
+          }
+        }
+        if (frontCi !== -1) this.state.cells[frontCi].morale = Math.min(3, (this.state.cells[frontCi].morale || 0) + 1);
         break;
       }
     }
@@ -624,24 +636,26 @@ export class GameEngine {
 
   _sampleStats(dt) {
     const s = this.state;
-    // Sample every ~2s of sim time
-    if (s.elapsedMs % 2000 < dt) {
-      const pc = s.cells.filter(c => c.owner === 'player').length;
-      s.stats.territoryHistory.push({ t: s.elapsedMs, playerCells: pc });
-      s.stats.goldHistory.push({ t: s.elapsedMs, p: Math.floor(s.gold.p), e: Math.floor(s.gold.e) });
+    // Accumulator-based sampling every 2000ms of sim time (robust to any dt)
+    s.stats._sampleAccum = (s.stats._sampleAccum || 0) + dt;
+    if (s.stats._sampleAccum < 2000) return;
+    s.stats._sampleAccum -= 2000;
 
-      // Frontline tracking
-      const fl = this._computeFrontline();
-      if (fl !== s.stats.lastFrontline) {
-        if (s.stats.lastFrontline !== -1) s.stats.frontlineChanges++;
-        s.stats.lastFrontline = fl;
-      }
-      s.stats.frontlineHistory.push(fl);
+    const pc = s.cells.filter(c => c.owner === 'player').length;
+    s.stats.territoryHistory.push({ t: s.elapsedMs, playerCells: pc });
+    s.stats.goldHistory.push({ t: s.elapsedMs, p: Math.floor(s.gold.p), e: Math.floor(s.gold.e) });
 
-      // Stalemate detection (no captures in last window)
-      if (pc > 0 && pc < this.config.NC) {
-        s.stats.stalemateMs += dt;
-      }
+    // Frontline tracking
+    const fl = this._computeFrontline();
+    if (fl !== s.stats.lastFrontline) {
+      if (s.stats.lastFrontline !== -1) s.stats.frontlineChanges++;
+      s.stats.lastFrontline = fl;
+    }
+    s.stats.frontlineHistory.push(fl);
+
+    // Stalemate: territory neither fully player nor fully enemy
+    if (pc > 0 && pc < this.config.NC) {
+      s.stats.stalemateMs += 2000;
     }
   }
 

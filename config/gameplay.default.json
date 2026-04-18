@@ -102,34 +102,64 @@
 
   "events": [
     {
-      "id": "reinforce",
+      "id": "reinforce_player",
       "txt": "🛡 RENFORTS ! Un guerrier allié rejoint la mêlée.",
       "type": "reinforce",
       "params": { "unit": "warrior", "owner": "player" }
     },
     {
-      "id": "goldrain",
-      "txt": "💰 PLUIE D'OR ! Bonus de 150 pièces.",
+      "id": "reinforce_enemy",
+      "txt": "🛡 RENFORTS ENNEMIS ! Un guerrier ennemi rejoint la mêlée.",
+      "type": "reinforce",
+      "params": { "unit": "warrior", "owner": "enemy" }
+    },
+    {
+      "id": "goldrain_player",
+      "txt": "💰 PLUIE D'OR ! Bonus de 150 pièces pour vous.",
       "type": "goldBonus",
       "params": { "owner": "player", "amount": 150 }
     },
     {
-      "id": "frenzy",
+      "id": "goldrain_enemy",
+      "txt": "💰 PLUIE D'OR ENNEMIE ! L'ennemi reçoit 150 pièces.",
+      "type": "goldBonus",
+      "params": { "owner": "enemy", "amount": 150 }
+    },
+    {
+      "id": "frenzy_player",
       "txt": "⚡ FRÉNÉSIE ! Toutes vos unités attaquent 2x plus vite pendant 8s.",
       "type": "buff",
       "params": { "owner": "player", "buffName": "frenzy", "duration": 8000 }
     },
     {
-      "id": "plague",
+      "id": "frenzy_enemy",
+      "txt": "⚡ FRÉNÉSIE ENNEMIE ! Les unités ennemies attaquent 2x plus vite pendant 8s.",
+      "type": "buff",
+      "params": { "owner": "enemy", "buffName": "frenzy", "duration": 8000 }
+    },
+    {
+      "id": "plague_enemy",
       "txt": "☠ PESTE ! L'ennemi subit une épidémie : ses unités perdent 20 PV.",
       "type": "plague",
       "params": { "owner": "enemy", "damage": 20 }
     },
     {
-      "id": "fortify",
+      "id": "plague_player",
+      "txt": "☠ ÉPIDÉMIE ! Vos unités sont affectées et perdent 20 PV.",
+      "type": "plague",
+      "params": { "owner": "player", "damage": 20 }
+    },
+    {
+      "id": "fortify_player",
       "txt": "🏰 FORTIFICATION ! Votre case la plus avancée est renforcée.",
       "type": "fortify",
       "params": { "owner": "player" }
+    },
+    {
+      "id": "fortify_enemy",
+      "txt": "🏰 FORTIFICATION ENNEMIE ! La case ennemie la plus avancée est renforcée.",
+      "type": "fortify",
+      "params": { "owner": "enemy" }
     }
   ]
 }
