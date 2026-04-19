@@ -54,6 +54,10 @@ async function bootstrap() {
 
   // Wire HUD buttons
   document.getElementById('pbtn').addEventListener('click', togglePause);
+  // Clicking anywhere on the pause overlay also resumes
+  document.getElementById('po').addEventListener('click', () => {
+    if (engine.state.paused) togglePause();
+  });
   document.getElementById('sp1').addEventListener('click', () => setSpeed(1));
   document.getElementById('sp2').addEventListener('click', () => setSpeed(2));
   document.getElementById('sp3').addEventListener('click', () => setSpeed(3));
@@ -95,6 +99,8 @@ function loop(ts) {
 function togglePause() {
   engine.state.paused = !engine.state.paused;
   renderer.setPause(engine.state.paused);
+  // Reset lastTs so the first frame after unpause doesn't produce a huge dt spike
+  if (!engine.state.paused) lastTs = 0;
 }
 
 function setSpeed(s) {

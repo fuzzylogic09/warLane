@@ -106,8 +106,8 @@ export class GameEngine {
     const s = this.state;
     const pc = s.cells.filter(c => c.owner === 'player').length;
     const ec = s.cells.filter(c => c.owner === 'enemy').length;
-    s.gold.p = Math.min(MAXG, s.gold.p + (GBASE + pc * GCELL) * dt / 1000);
-    s.gold.e = Math.min(MAXG, s.gold.e + (GBASE + ec * GCELL) * dt / 1000);
+    s.gold.p = Math.max(0, Math.min(MAXG, s.gold.p + (GBASE + pc * GCELL) * dt / 1000));
+    s.gold.e = Math.max(0, Math.min(MAXG, s.gold.e + (GBASE + ec * GCELL) * dt / 1000));
   }
 
   stepBuildings(dt) {
@@ -295,10 +295,11 @@ export class GameEngine {
     const tryBuild = (bldgId, unitType, maxTotal, maxQ, condFn) => {
       if (builds >= AI_BUILDS) return;
       if (total >= maxTotal) return;
-      if (g < uDefs[unitType].cost) return;
+      // Re-read gold each time to prevent overdraft from multiple builds in one tick
+      if (s.gold[goldKey] < uDefs[unitType].cost) return;
       if (bldgStore[bldgId].queue.length >= maxQ) return;
       if (condFn && !condFn()) return;
-      s.gold[goldKey] -= uDefs[unitType].cost;
+      s.gold[goldKey] = Math.max(0, s.gold[goldKey] - uDefs[unitType].cost);
       bldgStore[bldgId].queue.push({ elapsed: 0, total: uDefs[unitType].buildTime, unit: unitType });
       builds++;
     };

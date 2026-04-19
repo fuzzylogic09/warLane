@@ -113,9 +113,12 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;
 
 /* ── BOTTOM ── */
 #bpanel{background:linear-gradient(0deg,#0d0b08,#1a1610);
-  border-top:1px solid var(--border);padding:5px 10px 7px;flex-shrink:0;}
+  border-top:1px solid var(--border);padding:5px 10px 7px;
+  flex-shrink:0;          /* never crushed by flex parent */
+  min-height:0;           /* allow content to dictate height */
+  overflow:visible;}
 #bpanel h3{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--dim);margin-bottom:4px;}
-#brow{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;}
+#brow{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;min-height:64px;}
 .bcard{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);
   border-radius:5px;padding:5px 8px;min-width:110px;cursor:pointer;
   transition:border-color .15s,background .15s;position:relative;overflow:hidden;}
@@ -196,10 +199,15 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;
 
 /* ── PAUSE ── */
 #po{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-  z-index:150;align-items:center;justify-content:center;}
+  z-index:150;align-items:center;justify-content:center;
+  cursor:pointer;/* click anywhere on overlay to resume */}
 #po.show{display:flex;}
 .pb{font-family:'Cinzel',serif;font-size:28px;letter-spacing:6px;
   color:var(--gold);text-shadow:0 0 30px rgba(201,168,76,.6);}
+.pb-sub{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;
+  color:var(--dim);margin-top:10px;}
+/* Pause button must sit above the overlay */
+#pbtn{position:relative;z-index:160;}
 
 @media(max-width:600px){
   .hud-title{font-size:12px;letter-spacing:2px;}
@@ -264,7 +272,7 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;
   <button id="rbtn">NOUVELLE PARTIE</button>
   <a href="./optimizer.html" id="opt-link">⚗ OPTIMISEUR</a>
 </div>
-<div id="po"><div class="pb">— PAUSE —</div></div>
+<div id="po"><div style="text-align:center"><div class="pb">— PAUSE —</div><div class="pb-sub">CLIQUEZ POUR REPRENDRE</div></div></div>
 
 <script type="module" src="./main.js"></script>
 </body>
