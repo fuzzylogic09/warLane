@@ -51,12 +51,36 @@ export function scoreResult(stats, weights) {
   const durationScore = Math.max(0, 1 - Math.abs(dRatio - idealRatio) / idealRatio);
 
   // ── 3. Diversity score ────────────────────────────────────────
-  // Reward usage of multiple unit types and abilities
-  const allKills = { ...stats.kills.player, ...stats.kills.enemy };
-  const allProduced = { ...stats.unitsProduced.player, ...stats.unitsProduced.enemy };
-  const typeCount = Object.keys(allProduced).length;
-  const abilCount = Object.keys(stats.abilityUses || {}).length;
-  const diversityScore = Math.min(1, (typeCount / 3) * 0.6 + (abilCount / 3) * 0.4);
+  // Measures how varied the combat actually was:
+  //   - typeKillDiversity : how many unit types were killed by each side (0-3 each)
+  //   - combatBalance     : ratio kills player/enemy (closer to 0.5 = more mutual combat)
+  //   - unitMixScore      : were catapults actually used? (slots=3 so expensive, reward it)
+  const pKills = stats.kills?.player || {};
+  const eKills = stats.kills?.enemy  || {};
+  const pProd  = stats.unitsProduced?.player || {};
+  const eProd  = stats.unitsProduced?.enemy  || {};
+
+  // Types killed by each side (reflects actual combat encounters)
+  const pKillTypes = Object.keys(pKills).filter(t => pKills[t] > 0).length;
+  const eKillTypes = Object.keys(eKills).filter(t => eKills[t] > 0).length;
+  const killTypeDiversity = (pKillTypes + eKillTypes) / 6; // max = 3+3
+
+  // Were catapults involved in combat?
+  const catUsed = (pProd.catapult || 0) + (eProd.catapult || 0) > 0 ? 1 : 0;
+
+  // Total kills on each side — reward mutual attrition over one-sided stomps
+  const totalPKills = Object.values(pKills).reduce((s,v) => s+v, 0);
+  const totalEKills = Object.values(eKills).reduce((s,v) => s+v, 0);
+  const totalKills  = totalPKills + totalEKills;
+  const killBalance = totalKills > 0
+    ? 1 - Math.abs(totalPKills / totalKills - 0.5) * 2
+    : 0;
+
+  const diversityScore = Math.min(1,
+    killTypeDiversity * 0.5 +
+    killBalance       * 0.3 +
+    catUsed           * 0.2
+  );
 
   // ── 4. Frontline dynamics score ───────────────────────────────
   // Reward high frontline movement (not static).

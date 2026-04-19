@@ -8,133 +8,91 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* ══════════════════════════════════════════
-   LIGHT THEME (default)
-══════════════════════════════════════════ */
-:root {
-  --gold:#9a7018;--gold-l:#7a5808;--gold-d:#5c4008;
-  --gold-btn:#b8921e;
-  --bg:#f4f1eb;
-  --bg2:#ffffff;
-  --bg3:#edeae2;
-  --bg4:#e2ded4;
-  --border:#cdc8bc;
-  --border-l:#b8b2a4;
-  --text:#1c1a16;
-  --dim:#6a6352;
-  --green:#15652a;
-  --red:#8b1a1a;
-  --blue:#1a4aaa;
+/* ══ LIGHT (default) ══ */
+:root{
+  --gold:#9a7018;--gold-l:#7a5808;--gold-d:#5c4008;--gold-btn:#b8921e;
+  --bg:#f4f1eb;--bg2:#fff;--bg3:#edeae2;--bg4:#e2ded4;
+  --border:#cdc8bc;--border-l:#b8b2a4;
+  --text:#1c1a16;--dim:#6a6352;
+  --green:#15652a;--red:#8b1a1a;--blue:#1a4aaa;
   --shadow:0 1px 4px rgba(0,0,0,.09),0 0 0 1px rgba(0,0,0,.04);
-  --chart-grid:rgba(0,0,0,.07);
-  --chart-tick:#6a6352;
-  --chart-label:#4a4434;
+  --chart-grid:rgba(0,0,0,.07);--chart-tick:#6a6352;--chart-label:#4a4434;
   --progress-track:#dedad0;
   --winner-p-bg:rgba(26,74,170,.12);--winner-p-fg:#1a4aaa;
   --winner-e-bg:rgba(139,26,26,.12);--winner-e-fg:#8b1a1a;
   --winner-d-bg:rgba(106,99,82,.12);
-  --row-hover:rgba(154,112,24,.05);
-  --row-sel:rgba(154,112,24,.10);
-  --status-good:#15652a;
-  --status-warn:#854d0e;
+  --row-hover:rgba(154,112,24,.05);--row-sel:rgba(154,112,24,.10);
+  --status-good:#15652a;--status-warn:#854d0e;
+  --info-bg:#f0ede4;--info-border:#d4cfc0;
   --tr:background .22s,color .22s,border-color .22s,box-shadow .22s;
 }
-
-/* ══════════════════════════════════════════
-   DARK THEME
-══════════════════════════════════════════ */
-html.dark {
-  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a1f;
-  --gold-btn:#c9a84c;
-  --bg:#07090d;
-  --bg2:#0e1118;
-  --bg3:#141820;
-  --bg4:#1c2230;
-  --border:#2a3040;
-  --border-l:#3a4560;
-  --text:#b8c8e0;
-  --dim:#5a6880;
-  --green:#22c55e;
-  --red:#ef4444;
-  --blue:#3b82f6;
+/* ══ DARK ══ */
+html.dark{
+  --gold:#c9a84c;--gold-l:#f0d080;--gold-d:#8a6a1f;--gold-btn:#c9a84c;
+  --bg:#07090d;--bg2:#0e1118;--bg3:#141820;--bg4:#1c2230;
+  --border:#2a3040;--border-l:#3a4560;
+  --text:#b8c8e0;--dim:#5a6880;
+  --green:#22c55e;--red:#ef4444;--blue:#3b82f6;
   --shadow:0 1px 8px rgba(0,0,0,.5);
-  --chart-grid:#1c2230;
-  --chart-tick:#5a6880;
-  --chart-label:#8090a8;
+  --chart-grid:#1c2230;--chart-tick:#5a6880;--chart-label:#8090a8;
   --progress-track:#141820;
   --winner-p-bg:rgba(59,130,246,.18);--winner-p-fg:#93c5fd;
   --winner-e-bg:rgba(239,68,68,.18);--winner-e-fg:#fca5a5;
   --winner-d-bg:rgba(90,104,128,.18);
-  --row-hover:rgba(201,168,76,.04);
-  --row-sel:rgba(201,168,76,.09);
-  --status-good:#22c55e;
-  --status-warn:#fbbf24;
+  --row-hover:rgba(201,168,76,.04);--row-sel:rgba(201,168,76,.09);
+  --status-good:#22c55e;--status-warn:#fbbf24;
+  --info-bg:#0e1118;--info-border:#2a3040;
 }
 
-/* ══════════════════════════════════════════
-   THEME TOGGLE
-══════════════════════════════════════════ */
-.theme-toggle {
-  display:flex;align-items:center;gap:7px;
-  background:var(--bg3);border:1px solid var(--border);
-  border-radius:24px;padding:5px 12px 5px 7px;
-  cursor:pointer;user-select:none;
-  transition:var(--tr);
-}
-.theme-toggle:hover { border-color:var(--gold); }
-.tt-track {
-  width:34px;height:18px;background:var(--border-l);
-  border-radius:9px;position:relative;
-  transition:background .3s;flex-shrink:0;
-}
-html.dark .tt-track { background:var(--gold-d); }
-.tt-thumb {
-  position:absolute;top:2px;left:2px;
-  width:14px;height:14px;border-radius:50%;
-  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
-}
-html.dark .tt-thumb { transform:translateX(16px); }
-.tt-icon  { font-size:14px;line-height:1; }
-.tt-label { font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;color:var(--dim);white-space:nowrap;transition:color .22s; }
+/* ══ THEME TOGGLE ══ */
+.theme-toggle{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:24px;padding:5px 12px 5px 7px;cursor:pointer;user-select:none;transition:var(--tr);}
+.theme-toggle:hover{border-color:var(--gold);}
+.tt-track{width:34px;height:18px;background:var(--border-l);border-radius:9px;position:relative;transition:background .3s;flex-shrink:0;}
+html.dark .tt-track{background:var(--gold-d);}
+.tt-thumb{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+html.dark .tt-thumb{transform:translateX(16px);}
+.tt-icon{font-size:14px;line-height:1;}
+.tt-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;color:var(--dim);white-space:nowrap;transition:color .22s;}
 
-/* ══════════════════════════════════════════
-   BASE
-══════════════════════════════════════════ */
+/* ══ BASE ══ */
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;min-height:100vh;overflow-x:hidden;transition:var(--tr);}
 
-/* ══════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════ */
-header{
-  background:var(--bg2);border-bottom:1px solid var(--border);
-  padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;
-  position:sticky;top:0;z-index:50;box-shadow:var(--shadow);transition:var(--tr);
-}
+/* ══ HEADER ══ */
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);transition:var(--tr);}
 .logo{font-family:'Cinzel',serif;font-size:19px;font-weight:900;color:var(--gold);letter-spacing:4px;flex-shrink:0;}
 .logo span{font-size:8px;letter-spacing:5px;color:var(--dim);display:block;margin-top:-2px;}
 .header-right{display:flex;align-items:center;gap:10px;}
 .back-btn{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);text-decoration:none;border:1px solid var(--border);padding:5px 12px;border-radius:4px;transition:var(--tr);white-space:nowrap;}
 .back-btn:hover{border-color:var(--gold);color:var(--gold);}
 
-/* ══════════════════════════════════════════
-   LAYOUT
-══════════════════════════════════════════ */
+/* ══ LAYOUT ══ */
 .container{max-width:1400px;margin:0 auto;padding:18px;display:grid;grid-template-columns:320px 1fr;gap:16px;}
 @media(max-width:900px){.container{grid-template-columns:1fr;}}
 
-/* ══════════════════════════════════════════
-   PANELS
-══════════════════════════════════════════ */
+/* ══ PANELS ══ */
 .panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;box-shadow:var(--shadow);transition:var(--tr);}
 .panel+.panel{margin-top:14px;}
 .panel-title{font-family:'Cinzel',serif;font-size:10px;letter-spacing:4px;color:var(--gold);margin-bottom:13px;display:flex;align-items:center;gap:8px;}
 .panel-title::before,.panel-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* ══════════════════════════════════════════
-   FORM CONTROLS
-══════════════════════════════════════════ */
+/* ══ INFO BOX ══ */
+.info-box{background:var(--info-bg);border:1px solid var(--info-border);border-radius:6px;padding:12px 14px;margin-bottom:12px;font-size:12px;line-height:1.65;transition:var(--tr);}
+.info-box p{margin-bottom:7px;color:var(--text);}
+.info-box p:last-child{margin-bottom:0;}
+.info-box strong{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:var(--gold);}
+.info-box .formula{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 10px;margin:6px 0;color:var(--text);line-height:1.8;}
+.info-box ul{padding-left:14px;margin-top:4px;}
+.info-box li{margin-bottom:4px;color:var(--dim);font-size:11px;}
+.info-box li strong{font-family:'Crimson Pro',serif;font-size:11px;letter-spacing:0;color:var(--gold);}
+details.info-details summary{cursor:pointer;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--dim);list-style:none;padding:4px 0;display:flex;align-items:center;gap:6px;transition:color .15s;}
+details.info-details summary::-webkit-details-marker{display:none;}
+details.info-details summary::before{content:'▸';font-size:10px;transition:transform .2s;}
+details.info-details[open] summary::before{transform:rotate(90deg);}
+details.info-details summary:hover{color:var(--gold);}
+details.info-details .info-content{margin-top:8px;}
+
+/* ══ FORM ══ */
 .field{margin-bottom:10px;}
 .field label{display:block;font-size:10px;letter-spacing:1px;color:var(--dim);margin-bottom:3px;}
 .field input[type=number]{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 8px;outline:none;transition:var(--tr);}
@@ -150,9 +108,7 @@ header{
 .range-row input:focus{border-color:var(--gold);}
 .range-sep{color:var(--dim);font-size:10px;}
 
-/* ══════════════════════════════════════════
-   BUTTONS
-══════════════════════════════════════════ */
+/* ══ BUTTONS ══ */
 .btn{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;padding:9px 18px;border-radius:5px;cursor:pointer;transition:all .2s;border:none;display:flex;align-items:center;gap:6px;justify-content:center;}
 .btn-primary{background:linear-gradient(135deg,var(--gold-d),var(--gold-btn));color:#fff;font-weight:700;box-shadow:0 2px 10px rgba(154,112,24,.3);}
 html.dark .btn-primary{color:#0a0900;}
@@ -166,9 +122,7 @@ html.dark .btn-danger:hover:not(:disabled){background:rgba(239,68,68,.1);}
 .btn-sm{font-size:9px;padding:4px 11px;letter-spacing:1px;}
 .btn-full{width:100%;}
 
-/* ══════════════════════════════════════════
-   PROGRESS & STATUS
-══════════════════════════════════════════ */
+/* ══ PROGRESS / STATUS ══ */
 #progress-wrap{display:none;margin-top:11px;}
 #progress-wrap.show{display:block;}
 .progress-bar-outer{background:var(--progress-track);border:1px solid var(--border);border-radius:4px;overflow:hidden;height:8px;margin-bottom:5px;}
@@ -179,27 +133,21 @@ html.dark .btn-danger:hover:not(:disabled){background:rgba(239,68,68,.1);}
 #status-bar .good{color:var(--status-good);}
 #status-bar .warn{color:var(--status-warn);}
 
-/* ══════════════════════════════════════════
-   STAT CARDS
-══════════════════════════════════════════ */
+/* ══ STAT CARDS ══ */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
 @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:14px;text-align:center;box-shadow:var(--shadow);transition:var(--tr);}
 .stat-card .sv{font-family:'Cinzel',serif;font-size:22px;font-weight:700;color:var(--gold);}
 .stat-card .sl{font-size:9px;letter-spacing:2px;color:var(--dim);margin-top:3px;}
 
-/* ══════════════════════════════════════════
-   CHARTS
-══════════════════════════════════════════ */
+/* ══ CHARTS ══ */
 .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px;}
 @media(max-width:700px){.charts-grid{grid-template-columns:1fr;}}
 .chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;box-shadow:var(--shadow);transition:var(--tr);}
 .chart-title{font-family:'Cinzel',serif;font-size:8px;letter-spacing:3px;color:var(--dim);margin-bottom:9px;}
 .chart-canvas-wrap{position:relative;height:175px;}
 
-/* ══════════════════════════════════════════
-   TOP TABLE
-══════════════════════════════════════════ */
+/* ══ TOP TABLE ══ */
 .top-table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow);transition:var(--tr);}
 .top-table-toolbar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg3);}
 .top-table-toolbar span{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--gold);}
@@ -224,20 +172,17 @@ html.dark .btn-danger:hover:not(:disabled){background:rgba(239,68,68,.1);}
 .score-bar-bg{flex:1;height:4px;background:var(--bg3);border-radius:2px;}
 .score-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold-d),var(--gold-btn));}
 
-/* ══════════════════════════════════════════
-   HISTORY
-══════════════════════════════════════════ */
+/* ══ HISTORY ══ */
 .history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
 .history-list{display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;}
 .history-item{display:flex;align-items:center;gap:9px;padding:6px 10px;background:var(--bg3);border-radius:4px;border:1px solid var(--border);cursor:pointer;transition:var(--tr);font-size:10px;}
 .history-item:hover{border-color:var(--gold);}
 .htime{font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:9px;min-width:68px;}
+.hruns,.hscore{font-family:'JetBrains Mono',monospace;}
 .hruns{color:var(--dim);}
-.hscore{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;}
+.hscore{color:var(--gold);font-weight:700;}
 
-/* ══════════════════════════════════════════
-   DETAIL PANEL
-══════════════════════════════════════════ */
+/* ══ DETAIL PANEL ══ */
 #detail-panel{display:none;background:var(--bg2);border:1px solid var(--gold-d);border-radius:8px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow);transition:var(--tr);}
 #detail-panel.show{display:block;}
 .detail-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
@@ -253,16 +198,14 @@ html.dark .btn-danger:hover:not(:disabled){background:rgba(239,68,68,.1);}
 .bb-bar-bg{flex:1;height:6px;background:var(--bg3);border-radius:3px;}
 .bb-bar-fill{height:100%;border-radius:3px;}
 .bb-val{font-family:'JetBrains Mono',monospace;min-width:40px;text-align:right;color:var(--text);}
-details summary{cursor:pointer;font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:11px;padding:4px 0;transition:color .15s;list-style:none;}
-details summary::-webkit-details-marker{display:none;}
-details summary::before{content:'▸ ';font-size:10px;}
-details[open] summary::before{content:'▾ ';}
-details summary:hover{color:var(--gold);}
+details.cfg-details summary{cursor:pointer;font-size:10px;color:var(--dim);letter-spacing:1px;margin-top:11px;padding:4px 0;list-style:none;display:flex;align-items:center;gap:5px;transition:color .15s;}
+details.cfg-details summary::-webkit-details-marker{display:none;}
+details.cfg-details summary::before{content:'▸';transition:transform .2s;}
+details.cfg-details[open] summary::before{transform:rotate(90deg);}
+details.cfg-details summary:hover{color:var(--gold);}
 pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text);max-height:220px;overflow:auto;white-space:pre-wrap;margin-top:8px;transition:var(--tr);}
 
-/* ══════════════════════════════════════════
-   SCROLLBAR
-══════════════════════════════════════════ */
+/* ══ SCROLLBAR ══ */
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg3);}
 ::-webkit-scrollbar-thumb{background:var(--border-l);border-radius:2px;}
@@ -274,7 +217,7 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
 <header>
   <div class="logo">WARLANE <span>OPTIMISEUR DE GAMEPLAY</span></div>
   <div class="header-right">
-    <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Changer le thème">
+    <div class="theme-toggle" id="theme-toggle" title="Changer le thème">
       <span class="tt-icon" id="tt-icon">☀️</span>
       <div class="tt-track"><div class="tt-thumb"></div></div>
       <span class="tt-label" id="tt-label">CLAIR</span>
@@ -285,10 +228,31 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
 
 <div class="container">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- ══ SIDEBAR ══ -->
   <aside>
     <div class="panel">
       <div class="panel-title">CONFIGURATION</div>
+
+      <!-- ── How it works explanation ── -->
+      <details class="info-details" style="margin-bottom:12px;">
+        <summary>COMMENT FONCTIONNE L'OPTIMISATION ?</summary>
+        <div class="info-content">
+          <div class="info-box">
+            <p><strong>PRINCIPE GÉNÉRAL</strong></p>
+            <p>L'optimiseur génère N configurations aléatoires dans les plages définies ci-dessous, puis simule une partie complète pour chacune. Les meilleures configurations — celles qui produisent des parties équilibrées et dynamiques — remontent en tête du classement.</p>
+
+            <p><strong>DEUX IA SYMÉTRIQUES</strong></p>
+            <p>Chaque simulation oppose deux IA <em>identiques</em> (même logique, mêmes paramètres) sur les deux camps. Cela garantit que le score reflète les propriétés <em>intrinsèques</em> de la configuration, et non un avantage artificiel d'un camp. Le joueur humain n'intervient pas dans les simulations.</p>
+
+            <p><strong>PARAMÈTRES ALÉATOIRES</strong></p>
+            <p>À chaque run, une config est générée en échantillonnant aléatoirement dans les plages min/max de chaque paramètre (économie, stats d'unités, IA, etc.). Le moteur est entièrement déterministe : le même seed produit toujours la même partie.</p>
+
+            <p><strong>RÉSULTAT</strong></p>
+            <p>Le Top 20 des meilleures configs peut être exporté en JSON et rechargé dans le jeu principal pour remplacer la config par défaut.</p>
+          </div>
+        </div>
+      </details>
+
       <div class="field">
         <label>NOMBRE DE RUNS</label>
         <input type="number" id="runs-input" value="200" min="10" max="5000" step="10">
@@ -314,14 +278,13 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
         <input type="number" id="seed-input" value="0" min="0">
       </div>
 
-      <div class="panel-title" style="margin-top:14px">PLAGES DE PARAMÈTRES</div>
+      <div class="panel-title" style="margin-top:14px;">PLAGES DE PARAMÈTRES</div>
       <div id="param-ranges"></div>
 
-      <button class="btn btn-primary btn-full" id="run-btn" onclick="startOptimization()">
+      <button class="btn btn-primary btn-full" id="run-btn">
         ⚗ LANCER L'OPTIMISATION
       </button>
-      <button class="btn btn-secondary btn-full" id="stop-btn"
-        onclick="stopOptimization()" disabled style="margin-top:6px;">
+      <button class="btn btn-secondary btn-full" id="stop-btn" disabled style="margin-top:6px;">
         ■ ARRÊTER
       </button>
       <div id="progress-wrap">
@@ -331,18 +294,64 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
       <div id="status-bar">En attente…</div>
     </div>
 
+    <!-- History -->
     <div class="panel">
       <div class="panel-title">HISTORIQUE</div>
       <div class="history-header">
         <span style="font-size:10px;color:var(--dim)" id="history-count">0 batch(es)</span>
-        <button class="btn btn-danger btn-sm" onclick="clearHistory()">EFFACER</button>
+        <button class="btn btn-danger btn-sm" id="clear-history-btn">EFFACER</button>
       </div>
       <div class="history-list" id="history-list"></div>
     </div>
   </aside>
 
-  <!-- MAIN -->
+  <!-- ══ MAIN ══ -->
   <main>
+
+    <!-- Score criteria explanation -->
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-title">CRITÈRES DE SCORING</div>
+      <details class="info-details">
+        <summary>FORMULE DU SCORE FINAL ET EXPLICATION DES CRITÈRES</summary>
+        <div class="info-content">
+          <div class="info-box">
+            <p><strong>FORMULE DU SCORE GLOBAL</strong></p>
+            <div class="formula">score = 0.35 × Balance<br>
+       + 0.25 × Durée<br>
+       + 0.20 × Diversité<br>
+       + 0.20 × Dynamisme<br>
+       − penalité_stalemate</div>
+            <p style="font-size:10px;color:var(--dim);">Les poids sont configurables dans <code>config/scoring.default.json</code>.</p>
+
+            <p><strong>DÉTAIL DES 4 CRITÈRES</strong></p>
+            <ul>
+              <li>
+                <strong>Balance (×0.35)</strong> — Mesure si la partie a été disputée de bout en bout.
+                On calcule la moyenne du ratio de territoire joueur/total sur tous les snapshots intermédiaires (toutes les 2s de temps simulé).
+                Score = 1 quand les deux camps se partagent exactement la moitié du territoire en moyenne ; score = 0 si un camp a tout écrasé rapidement.
+              </li>
+              <li>
+                <strong>Durée (×0.25)</strong> — Récompense les parties d'une durée proche de la durée idéale (90s par défaut).
+                Trop courtes ou trop longues = score faible. Utile pour détecter les configs qui terminent trop vite (déséquilibre brutal) ou stagnent indéfiniment.
+              </li>
+              <li>
+                <strong>Diversité (×0.20)</strong> — Mesure la richesse des combats : combien de types d'unités différents ont été tués par chaque camp, si les catapultes ont été engagées, et si les kills ont été mutuels (les deux camps ont subi des pertes).
+                Score variable (contrairement à l'ancienne version qui renvoyait toujours 0.6).
+              </li>
+              <li>
+                <strong>Dynamisme (×0.20)</strong> — Mesure les mouvements de la ligne de front.
+                Combine le nombre de changements de frontière et la variance de sa position dans le temps.
+                Un front qui oscille entre les cases 4 et 6 score bien ; un front figé en case 2 dès le début score mal.
+              </li>
+            </ul>
+            <p><strong>PÉNALITÉ STALEMATE</strong></p>
+            <p>Si la partie stagne (aucun cap­ture pendant plus de 15s de jeu simulé), un malus est appliqué, plafonné à −0.3.</p>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Stat cards -->
     <div class="stats-grid">
       <div class="stat-card"><div class="sv" id="stat-runs">—</div><div class="sl">RUNS</div></div>
       <div class="stat-card"><div class="sv" id="stat-best">—</div><div class="sl">MEILLEUR SCORE</div></div>
@@ -350,6 +359,7 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
       <div class="stat-card"><div class="sv" id="stat-avgdur">—</div><div class="sl">DURÉE MOYENNE</div></div>
     </div>
 
+    <!-- Charts -->
     <div class="charts-grid">
       <div class="chart-wrap">
         <div class="chart-title">DISTRIBUTION DES SCORES (TOP 20)</div>
@@ -369,18 +379,18 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
       </div>
     </div>
 
-    <!-- Detail -->
+    <!-- Detail panel -->
     <div id="detail-panel">
       <div class="detail-toolbar">
         <div class="detail-toolbar-title">PRESET SÉLECTIONNÉ</div>
         <div class="detail-toolbar-btns">
-          <button class="btn btn-secondary btn-sm" onclick="exportPreset()">⬇ EXPORTER JSON</button>
-          <button class="btn btn-primary btn-sm" onclick="injectPreset()">⚙ INJECTER</button>
+          <button class="btn btn-secondary btn-sm" id="export-preset-btn">⬇ EXPORTER JSON</button>
+          <button class="btn btn-primary btn-sm" id="inject-preset-btn">⚙ INJECTER</button>
         </div>
       </div>
       <div class="detail-grid" id="detail-meta"></div>
       <div class="breakdown-bars" id="detail-breakdown"></div>
-      <details>
+      <details class="cfg-details">
         <summary>VOIR JSON CONFIG COMPLET</summary>
         <pre class="config-json" id="detail-json"></pre>
       </details>
@@ -390,7 +400,7 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
     <div class="top-table-wrap">
       <div class="top-table-toolbar">
         <span>TOP PRESETS</span>
-        <button class="btn btn-secondary btn-sm" onclick="exportBest()">⬇ EXPORTER TOP 20</button>
+        <button class="btn btn-secondary btn-sm" id="export-best-btn">⬇ EXPORTER TOP 20</button>
       </div>
       <div class="top-table-header">
         <div class="th">#</div>
@@ -408,13 +418,23 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
         </div>
       </div>
     </div>
+
   </main>
 </div>
 
+<!-- ══════════════════════════════════════════
+  IMPORTANT: All JS in one module script.
+  - Theme toggle attached via addEventListener (not onclick="") to avoid
+    "not defined" errors with ES modules.
+  - charts object declared BEFORE applyTheme so it can be safely checked.
+══════════════════════════════════════════ -->
 <script type="module">
-import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js?v=2';
+import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js';
 
-// ── Theme ──────────────────────────────────────
+// ── Charts object declared first so applyTheme can safely reference it ──
+const charts = {};
+
+// ── Theme ──────────────────────────────────────────────────────────────
 const THEME_KEY = 'warlane_theme';
 
 function applyTheme(dark) {
@@ -422,47 +442,56 @@ function applyTheme(dark) {
   document.getElementById('tt-icon').textContent  = dark ? '🌙' : '☀️';
   document.getElementById('tt-label').textContent = dark ? 'SOMBRE' : 'CLAIR';
   localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
-
-  if (typeof charts !== 'undefined' && Object.keys(charts).length) {
-    recolourCharts();
-  }
+  // Only recolour if charts have been initialised
+  if (Object.keys(charts).length > 0) recolourCharts();
 }
-window.toggleTheme = () => applyTheme(!document.documentElement.classList.contains('dark'));
 
+// Attach toggle via addEventListener — NOT onclick="" — so it works in modules
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  applyTheme(!document.documentElement.classList.contains('dark'));
+});
 
-// ── State ──────────────────────────────────────
+// Apply saved theme on load (default = light)
+applyTheme(localStorage.getItem(THEME_KEY) === 'dark');
+
+// ── State ───────────────────────────────────────────────────────────────
 let worker = null, currentResults = [], selectedPreset = null;
 let baseConfig = null, scoringWeights = null;
-const charts = {};
-// Default = light; only go dark if explicitly saved
-applyTheme(localStorage.getItem(THEME_KEY) === 'dark');
 let isRunning = false;
 const HISTORY_KEY = 'warlane_opt_history';
 
-// ── Init ───────────────────────────────────────
+// ── Init ────────────────────────────────────────────────────────────────
 async function init() {
   baseConfig     = await fetch('./config/gameplay.default.json').then(r => r.json());
   scoringWeights = await fetch('./config/scoring.default.json').then(r => r.json());
   buildParamRanges();
   initCharts();
   loadHistory();
+
+  // Wire all buttons via addEventListener (required for ES modules)
+  document.getElementById('run-btn').addEventListener('click', startOptimization);
+  document.getElementById('stop-btn').addEventListener('click', stopOptimization);
+  document.getElementById('export-preset-btn').addEventListener('click', exportPreset);
+  document.getElementById('inject-preset-btn').addEventListener('click', injectPreset);
+  document.getElementById('export-best-btn').addEventListener('click', exportBest);
+  document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
 }
 
-// ── Param ranges ───────────────────────────────
+// ── Param ranges UI ─────────────────────────────────────────────────────
 const DISPLAY_PARAMS = {
-  'GBASE':              { label:'Or/s base',            group:'Économie'  },
-  'GCELL':              { label:'Or/s par case',         group:'Économie'  },
-  'CQRATE':             { label:'Vitesse conquête',      group:'Combat'    },
-  'AITICK':             { label:'Tick IA (ms)',           group:'IA'        },
-  'AI_MOVES':           { label:'Mouvements IA/tick',    group:'IA'        },
-  'MOVE_TICK':          { label:'Tick mouvement (ms)',   group:'Mouvement' },
-  'units.warrior.hp':   { label:'Guerrier PV',           group:'Unités'    },
-  'units.warrior.dmg':  { label:'Guerrier Dégâts',       group:'Unités'    },
-  'units.warrior.cost': { label:'Guerrier Coût',         group:'Unités'    },
-  'units.archer.hp':    { label:'Archer PV',             group:'Unités'    },
-  'units.archer.dmg':   { label:'Archer Dégâts',         group:'Unités'    },
-  'units.catapult.dmg': { label:'Catapulte Dégâts',      group:'Unités'    },
-  'units.catapult.cost':{ label:'Catapulte Coût',        group:'Unités'    },
+  'GBASE':              { label:'Or/s base',           group:'Économie'  },
+  'GCELL':              { label:'Or/s par case',        group:'Économie'  },
+  'CQRATE':             { label:'Vitesse conquête',     group:'Combat'    },
+  'AITICK':             { label:'Tick IA (ms)',          group:'IA'        },
+  'AI_MOVES':           { label:'Mouvements IA/tick',   group:'IA'        },
+  'MOVE_TICK':          { label:'Tick mouvement (ms)',  group:'Mouvement' },
+  'units.warrior.hp':   { label:'Guerrier PV',          group:'Unités'    },
+  'units.warrior.dmg':  { label:'Guerrier Dégâts',      group:'Unités'    },
+  'units.warrior.cost': { label:'Guerrier Coût',        group:'Unités'    },
+  'units.archer.hp':    { label:'Archer PV',            group:'Unités'    },
+  'units.archer.dmg':   { label:'Archer Dégâts',        group:'Unités'    },
+  'units.catapult.dmg': { label:'Catapulte Dégâts',     group:'Unités'    },
+  'units.catapult.cost':{ label:'Catapulte Coût',       group:'Unités'    },
 };
 
 function buildParamRanges() {
@@ -501,8 +530,8 @@ function getRangeOverrides() {
   return ov;
 }
 
-// ── Optimization ───────────────────────────────
-window.startOptimization = function() {
+// ── Optimization ────────────────────────────────────────────────────────
+function startOptimization() {
   if (isRunning) return;
   isRunning = true;
   document.getElementById('run-btn').disabled = true;
@@ -517,7 +546,7 @@ window.startOptimization = function() {
   const seedVal = parseInt(document.getElementById('seed-input').value);
   const seed    = seedVal === 0 ? Date.now() : seedVal;
 
-  worker = new Worker('./src/optimizer-ui/workers/simWorker.js?v=2', { type: 'module' });
+  worker = new Worker('./src/optimizer-ui/workers/simWorker.js', { type: 'module' });
   worker.onmessage = ({ data }) => {
     if (data.type === 'progress') updateProgress(data.done, data.total, data.best);
     if (data.type === 'done')     finishOptimization(data.result);
@@ -526,20 +555,20 @@ window.startOptimization = function() {
     setStatus(`<span class="warn">Erreur worker : ${err.message}</span>`);
     stopOptimization();
   };
-  worker.postMessage({ type:'run', options:{
+  worker.postMessage({ type: 'run', options: {
     runs, baseConfig, scoringWeights,
     rangeOverrides: getRangeOverrides(),
     dt, maxDurationMs: maxDur, seed, topN: 20,
   }});
-};
+}
 
-window.stopOptimization = function() {
+function stopOptimization() {
   if (worker) { worker.terminate(); worker = null; }
   isRunning = false;
   document.getElementById('run-btn').disabled = false;
   document.getElementById('stop-btn').disabled = true;
   setStatus('Arrêté.');
-};
+}
 
 function updateProgress(done, total, best) {
   const pct = (done / total * 100).toFixed(1);
@@ -568,14 +597,15 @@ function finishOptimization(result) {
   document.getElementById('stat-avgdur').textContent  =
     aggregate?.avgDurationMs ? (aggregate.avgDurationMs / 1000).toFixed(0) + 's' : '—';
   setStatus(`<span class="good">✓ Terminé — ${totalRuns} runs — Meilleur : ${bestScore?.toFixed(4) ?? '—'}</span>`);
-  updateCharts(top, aggregate);
+  updateCharts(top);
   renderTopTable(top);
   saveHistory(result);
 }
 
-// ── Charts ─────────────────────────────────────
-function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-
+// ── Charts ──────────────────────────────────────────────────────────────
+function cssVar(n) {
+  return getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+}
 function baseOpts() {
   const tick = cssVar('--chart-tick'), grid = cssVar('--chart-grid');
   return {
@@ -585,7 +615,7 @@ function baseOpts() {
     scales: {
       x: { ticks: { color: tick, font: { size: 9 } }, grid: { color: grid } },
       y: { ticks: { color: tick, font: { size: 9 } }, grid: { color: grid } },
-    }
+    },
   };
 }
 function radarOpts() {
@@ -598,25 +628,25 @@ function radarOpts() {
       grid:  { color: grid },
       pointLabels: { color: lbl, font: { size: 9 } },
       min: 0, max: 1,
-    }}
+    }},
   };
 }
 
 function initCharts() {
-  const o = baseOpts();
-  const noLeg = { ...o, plugins: { ...o.plugins, legend: { display: false } } };
+  const o    = baseOpts();
+  const noLg = { ...o, plugins: { ...o.plugins, legend: { display: false } } };
 
   charts.scores = new Chart(document.getElementById('chart-scores').getContext('2d'), {
     type: 'bar',
     data: { labels: [], datasets: [{ label:'Score', data:[],
-      backgroundColor:'rgba(154,112,24,.5)', borderColor: cssVar('--gold'), borderWidth:1 }] },
-    options: noLeg,
+      backgroundColor:'rgba(154,112,24,.5)', borderColor:cssVar('--gold'), borderWidth:1 }] },
+    options: noLg,
   });
   charts.durations = new Chart(document.getElementById('chart-durations').getContext('2d'), {
     type: 'bar',
     data: { labels: [], datasets: [{ label:'Durée (s)', data:[],
       backgroundColor:'rgba(26,74,170,.45)', borderColor:'#3b82f6', borderWidth:1 }] },
-    options: noLeg,
+    options: noLg,
   });
   charts.winrate = new Chart(document.getElementById('chart-winrate').getContext('2d'), {
     type: 'bar',
@@ -628,7 +658,7 @@ function initCharts() {
   });
   charts.breakdown = new Chart(document.getElementById('chart-breakdown').getContext('2d'), {
     type: 'radar',
-    data: { labels: ['Balance','Durée','Diversité','Dynamisme'], datasets: [] },
+    data: { labels:['Balance','Durée','Diversité','Dynamisme'], datasets:[] },
     options: radarOpts(),
   });
 }
@@ -672,12 +702,16 @@ function updateCharts(top) {
 
   const COLORS = [
     'rgba(154,112,24,.85)','rgba(59,130,246,.8)',
-    'rgba(126,34,206,.8)','rgba(21,101,42,.8)','rgba(139,26,26,.8)',
+    'rgba(126,34,206,.8)', 'rgba(21,101,42,.8)', 'rgba(139,26,26,.8)',
   ];
   charts.breakdown.data.datasets = top.slice(0, 5).map((r, i) => ({
     label: `#${i + 1}`,
-    data: [r.breakdown?.balance??0, r.breakdown?.duration??0,
-           r.breakdown?.diversity??0, r.breakdown?.frontline??0],
+    data: [
+      r.breakdown?.balance   ?? 0,
+      r.breakdown?.duration  ?? 0,
+      r.breakdown?.diversity ?? 0,
+      r.breakdown?.frontline ?? 0,
+    ],
     borderColor: COLORS[i],
     backgroundColor: COLORS[i].replace(/[\d.]+\)$/, '.08)'),
     borderWidth: 2, pointRadius: 3,
@@ -685,33 +719,40 @@ function updateCharts(top) {
   charts.breakdown.update();
 }
 
-// ── Top table ──────────────────────────────────
+// ── Top table ────────────────────────────────────────────────────────────
 function renderTopTable(top) {
   const body = document.getElementById('top-table-body');
   body.innerHTML = '';
   top.forEach((item, i) => {
     const row = document.createElement('div');
     row.className = 'top-row' + (selectedPreset === item ? ' selected' : '');
-    const rk = ['','gold','silver','bronze'][Math.min(i,3)] || '';
+    const rk = ['','gold','silver','bronze'][Math.min(i, 3)] || '';
     const wb = item.stats.winner === 'player' ? 'p' : item.stats.winner === 'enemy' ? 'e' : 'draw';
-    const wl = item.stats.winner === 'player' ? '🔵 Joueur' : item.stats.winner === 'enemy' ? '🔴 Ennemi' : '— Nul';
+    const wl = item.stats.winner === 'player'
+      ? '🔵 Joueur' : item.stats.winner === 'enemy' ? '🔴 Ennemi' : '— Nul';
     const pct = Math.round(item.score * 100);
     row.innerHTML = `
-      <div class="rank ${rk}">${i===0?'👑':i+1}</div>
+      <div class="rank ${rk}">${i === 0 ? '👑' : i + 1}</div>
       <div class="score-val">${item.score.toFixed(4)}</div>
-      <div class="mono">${(item.stats.durationMs/1000).toFixed(0)}s</div>
+      <div class="mono">${(item.stats.durationMs / 1000).toFixed(0)}s</div>
       <div><span class="winner-badge ${wb}">${wl}</span></div>
-      <div class="mono">${item.stats.cellCaptures??'—'}</div>
-      <div class="mono">${item.stats.frontlineChanges??'—'}</div>
+      <div class="mono">${item.stats.cellCaptures ?? '—'}</div>
+      <div class="mono">${item.stats.frontlineChanges ?? '—'}</div>
       <div class="score-bar-wrap">
-        <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+        <div class="score-bar-bg">
+          <div class="score-bar-fill" style="width:${pct}%"></div>
+        </div>
       </div>
-      <div><button class="btn btn-secondary btn-sm" onclick="selectPreset(${i})">VOIR</button></div>`;
+      <div>
+        <button class="btn btn-secondary btn-sm" data-idx="${i}">VOIR</button>
+      </div>`;
+    // Wire detail button inside the row
+    row.querySelector('button').addEventListener('click', () => selectPreset(i));
     body.appendChild(row);
   });
 }
 
-window.selectPreset = function(idx) {
+function selectPreset(idx) {
   selectedPreset = currentResults[idx];
   if (!selectedPreset) return;
   renderTopTable(currentResults);
@@ -720,13 +761,15 @@ window.selectPreset = function(idx) {
   panel.classList.add('show');
 
   document.getElementById('detail-meta').innerHTML = [
-    ['SCORE GLOBAL',     selectedPreset.score.toFixed(5)],
-    ['DURÉE',            (selectedPreset.stats.durationMs/1000).toFixed(1)+'s'],
-    ['VAINQUEUR',        selectedPreset.stats.winner ?? '—'],
-    ['SEED',             selectedPreset.seed],
-    ['CAPTURES',         selectedPreset.stats.cellCaptures ?? '—'],
-    ['MVTS FRONTLINE',   selectedPreset.stats.frontlineChanges ?? '—'],
-  ].map(([l,v]) => `<div class="detail-item"><label>${l}</label><div class="dv">${v}</div></div>`).join('');
+    ['SCORE GLOBAL',   selectedPreset.score.toFixed(5)],
+    ['DURÉE',          (selectedPreset.stats.durationMs / 1000).toFixed(1) + 's'],
+    ['VAINQUEUR',      selectedPreset.stats.winner ?? '—'],
+    ['SEED',           selectedPreset.seed],
+    ['CAPTURES',       selectedPreset.stats.cellCaptures ?? '—'],
+    ['MVTS FRONTLINE', selectedPreset.stats.frontlineChanges ?? '—'],
+  ].map(([l, v]) =>
+    `<div class="detail-item"><label>${l}</label><div class="dv">${v}</div></div>`
+  ).join('');
 
   const b = selectedPreset.breakdown || {};
   const BCOMPS = [
@@ -746,57 +789,77 @@ window.selectPreset = function(idx) {
 
   document.getElementById('detail-json').textContent =
     JSON.stringify(selectedPreset.config, null, 2);
-  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
-};
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-// ── Export / inject ────────────────────────────
-window.exportPreset = () => { if (selectedPreset) _dl(selectedPreset.config, `warlane_preset_${Date.now()}.json`); };
-window.exportBest   = () => { if (currentResults.length) _dl({ top: currentResults }, `warlane_top20_${Date.now()}.json`); };
-window.injectPreset = () => {
+// ── Export / inject ──────────────────────────────────────────────────────
+function exportPreset() {
+  if (!selectedPreset) return;
+  _dl(selectedPreset.config, `warlane_preset_${Date.now()}.json`);
+}
+function exportBest() {
+  if (!currentResults.length) return;
+  _dl({ top: currentResults }, `warlane_top20_${Date.now()}.json`);
+}
+function injectPreset() {
   if (!selectedPreset) return;
   localStorage.setItem('warlane_active_config', JSON.stringify(selectedPreset.config));
   setStatus('<span class="good">✓ Preset injecté dans localStorage — rechargez le jeu.</span>');
-};
+}
 function _dl(data, name) {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-  a.download = name; a.click();
+  a.href = URL.createObjectURL(
+    new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
+  a.download = name;
+  a.click();
 }
 
-// ── History ────────────────────────────────────
+// ── History ──────────────────────────────────────────────────────────────
 function saveHistory(result) {
   const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  h.unshift({ ts:Date.now(), runs:result.totalRuns, bestScore:result.bestScore,
-    aggregate:result.aggregate, bestConfig:result.bestConfig, top:result.top?.slice(0,5) });
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0,20)));
+  h.unshift({
+    ts: Date.now(), runs: result.totalRuns,
+    bestScore: result.bestScore, aggregate: result.aggregate,
+    bestConfig: result.bestConfig, top: result.top?.slice(0, 5),
+  });
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(0, 20)));
   loadHistory();
 }
 function loadHistory() {
   const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
   document.getElementById('history-count').textContent = h.length + ' batch(es)';
-  document.getElementById('history-list').innerHTML = h.length === 0
+  const list = document.getElementById('history-list');
+  list.innerHTML = h.length === 0
     ? '<div style="color:var(--dim);font-size:10px;text-align:center;padding:10px">Aucun historique</div>'
-    : h.map((item,i) => `
-        <div class="history-item" onclick="loadHistoryItem(${i})">
+    : h.map((item, i) => `
+        <div class="history-item" data-idx="${i}">
           <span class="htime">${new Date(item.ts).toLocaleTimeString()}</span>
           <span class="hruns">${item.runs} runs</span>
-          <span class="hscore">${item.bestScore?.toFixed(4)?? '—'}</span>
+          <span class="hscore">${item.bestScore?.toFixed(4) ?? '—'}</span>
           <span style="margin-left:auto;font-size:9px;color:var(--dim)">W:${((item.aggregate?.winRatePlayer||0)*100).toFixed(0)}%</span>
         </div>`).join('');
+  // Wire history item clicks
+  list.querySelectorAll('.history-item').forEach(el => {
+    el.addEventListener('click', () => loadHistoryItem(+el.dataset.idx));
+  });
 }
-window.loadHistoryItem = function(idx) {
+function loadHistoryItem(idx) {
   const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
   const item = h[idx]; if (!item) return;
   currentResults = item.top || [];
   renderTopTable(currentResults);
-  setStatus(`<span class="hl">Historique chargé</span> — ${item.runs} runs, meilleur : <span class="good">${item.bestScore?.toFixed(4)?? '—'}</span>`);
-};
-window.clearHistory = function() {
+  setStatus(`<span class="hl">Historique chargé</span> — ${item.runs} runs, meilleur : <span class="good">${item.bestScore?.toFixed(4) ?? '—'}</span>`);
+}
+function clearHistory() {
   if (!confirm('Effacer tout l\'historique ?')) return;
-  localStorage.removeItem(HISTORY_KEY); loadHistory();
-};
+  localStorage.removeItem(HISTORY_KEY);
+  loadHistory();
+}
 
-function setStatus(html) { document.getElementById('status-bar').innerHTML = html; }
+// ── Utils ─────────────────────────────────────────────────────────────────
+function setStatus(html) {
+  document.getElementById('status-bar').innerHTML = html;
+}
 
 init();
 </script>
