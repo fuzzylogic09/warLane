@@ -289,8 +289,12 @@ export class Renderer {
     if (wasSrc) div.classList.add('drag-src');
     if (wasTgt) div.classList.add('vtgt');
 
+    const wallSl = cell.wall ? (this.config.wall?.slots || 0) : 0;
     div.querySelector('.cell-slots').textContent =
-      cell.units.reduce((s, u) => s + this.config.units[u.type].slots, 0) + '/' + this.config.SLOTS;
+      cell.units.reduce((s, u) => {
+        const def = u.type === 'wall' ? this.config.wall : this.config.units[u.type];
+        return s + (def?.slots || 0);
+      }, 0) + wallSl + '/' + this.config.SLOTS;
 
     let ml = div.querySelector('.cell-morale');
     if (cell.morale > 0) {
@@ -317,12 +321,17 @@ export class Renderer {
 
   _setCellClass(div, cell) {
     const oc = cell.owner === 'player' ? 'po' : cell.owner === 'enemy' ? 'eo' : 'no';
-    div.className = 'cell ' + oc + (cell.morale > 0 ? ' fort' : '');
+    div.className = 'cell ' + oc + (cell.morale > 0 ? ' fort' : '') + (cell.wall ? ' has-wall' : '');
   }
 
   _buildSlotBadge(cell) {
     const sd = document.createElement('div'); sd.className = 'cell-slots';
-    sd.textContent = cell.units.reduce((s, u) => s + this.config.units[u.type].slots, 0) + '/' + this.config.SLOTS;
+    const wallSl = cell.wall ? (this.config.wall?.slots || 0) : 0;
+    const used = cell.units.reduce((s, u) => {
+      const def = u.type === 'wall' ? this.config.wall : this.config.units[u.type];
+      return s + (def?.slots || 0);
+    }, 0) + wallSl;
+    sd.textContent = used + '/' + this.config.SLOTS;
     return sd;
   }
 
@@ -341,8 +350,19 @@ export class Renderer {
   }
 
   _fillUnitStack(stk, cell, i) {
+    if (cell.wall) stk.appendChild(this._buildWallToken(cell.wall, i));
     const all = [...cell.units.filter(u => u.owner === 'player'), ...cell.units.filter(u => u.owner === 'enemy')];
     all.forEach(u => stk.appendChild(this._buildUnitToken(u, i)));
+  }
+
+  _buildWallToken(wall, ci) {
+    const tok = document.createElement('div');
+    tok.className = 'utok wall-tok ' + (wall.owner === 'player' ? 'pu' : 'eu');
+    const hp = wall.hp / wall.mhp, hpc = hp > 0.6 ? 'hi' : hp > 0.3 ? 'md' : 'lo';
+    tok.innerHTML = `<span class="ui">🧱</span><span class="uh">${Math.ceil(wall.hp)}</span>
+      <div class="uhbar"><div class="uhfill ${hpc}" style="width:${hp*100}%"></div></div>`;
+    tok.title = `Mur — PV: ${Math.ceil(wall.hp)}/${wall.mhp} · Armure: ${wall.armor}`;
+    return tok;
   }
 
   _buildUnitToken(unit, ci) {
@@ -389,15 +409,20 @@ export class Renderer {
     if (!row) return;
     row.innerHTML = '';
     this.config.buildings.forEach(b => {
-      const def = this.config.units[b.unit];
+      const isWall = b.unit === 'wall';
+      const def = isWall ? this.config.wall : this.config.units[b.unit];
+      if (!def) return;
       const st = this.state.buildings[b.id];
       if (!st) return;
       const full = st.queue.length >= 3;
       const card = document.createElement('div');
       card.className = 'bcard' + (full ? ' bcool' : '');
       const prog = st.queue.length ? (st.queue[0].elapsed / st.queue[0].total * 100) : 0;
+      const statsHtml = isWall
+        ? `${def.icon} ${def.slots}🔲 🛡${def.armor} ❤${def.hp}`
+        : `${def.icon} ${def.slots}🔲 ⚔${def.dmg} ❤${def.hp}`;
       card.innerHTML = `<div class="bn">${b.icon} ${b.name}</div>
-        <div class="br"><span class="bs">${def.icon} ${def.slots}🔲 ⚔${def.dmg} ❤${def.hp}</span>
+        <div class="br"><span class="bs">${statsHtml}</span>
         <span class="bc">💰${def.cost}</span></div>
         <div class="bq">${st.queue.length ? `En cours (${st.queue.length}/3)` : 'Disponible'}</div>
         <div class="bp" id="bp-${b.id}" style="width:${prog}%"></div>`;
@@ -407,6 +432,59 @@ export class Renderer {
       row.appendChild(card);
     });
     this._renderAbils();
+    this._renderUpgrades();
+  }
+
+  _renderUpgrades() {
+    let row = document.getElementById('upgrade-row');
+    if (!row) {
+      row = document.createElement('div');
+      row.id = 'upgrade-row';
+      row.style.cssText = 'display:flex;gap:5px;padding:4px 10px 0;overflow-x:auto;flex-wrap:wrap;';
+      document.getElementById('bpanel')?.appendChild(row);
+    }
+    row.innerHTML = '';
+    Object.keys(this.config.units).forEach(type => {
+      const def = this.config.units[type];
+      const level = this.state.upgrades?.player?.[type] || 0;
+      const queue = this.state.upgradeQueues?.player?.[type];
+      const nextUpg = def.upgrades?.[level];
+      if (!nextUpg) return; // max level
+
+      const pct = queue ? (queue.elapsed / queue.total * 100) : 0;
+      const canAfford = this.state.gold.p >= nextUpg.cost;
+      const card = document.createElement('div');
+      card.className = 'bcard' + (queue || !canAfford ? ' bcool' : '');
+      card.style.minWidth = '120px';
+      card.innerHTML = `<div class="bn" style="font-size:9px">${nextUpg.icon} ${nextUpg.name}</div>
+        <div class="br"><span class="bs" style="font-size:8px">${def.icon} Niv.${level+1}</span>
+        <span class="bc">💰${nextUpg.cost}</span></div>
+        <div class="bq">${queue ? `Recherche...` : (canAfford ? 'Disponible' : 'Or insuffisant')}</div>
+        <div class="bp" style="width:${pct}%"></div>`;
+      if (!queue && canAfford) {
+        card.addEventListener('click', () => this._onUpgradeClick?.(type));
+      }
+      card.addEventListener('mouseenter', e => {
+        const tt = document.getElementById('tt');
+        tt.innerHTML = `<h4>${nextUpg.icon} ${nextUpg.name}</h4>
+          <div>${nextUpg.desc}</div>
+          <div class="tr"><span>Coût</span><span class="tv">💰${nextUpg.cost}</span></div>
+          <div class="tr"><span>Temps</span><span class="tv">${(nextUpg.researchTime/1000).toFixed(1)}s</span></div>
+          <div class="tr"><span>Niveau actuel</span><span class="tv">${level}/3</span></div>`;
+        tt.style.display = 'block';
+        const x = Math.min(e.clientX+12, innerWidth-190), y = Math.min(e.clientY+12, innerHeight-160);
+        tt.style.left = x+'px'; tt.style.top = y+'px';
+      });
+      card.addEventListener('mouseleave', () => hideTip());
+      row.appendChild(card);
+
+      // Level indicators
+      const lvlEl = document.createElement('div');
+      lvlEl.style.cssText = 'position:absolute;top:2px;left:4px;font-size:7px;color:var(--gold-l)';
+      lvlEl.textContent = '★'.repeat(level) + '☆'.repeat(3-level);
+      card.style.position = 'relative';
+      card.appendChild(lvlEl);
+    });
   }
 
   // ─────────────────────────────────────────────────

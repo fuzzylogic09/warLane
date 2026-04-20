@@ -31,6 +31,7 @@ export class InputController {
     renderer._onCellDrop = (i) => this._onDrop(i);
     renderer._onBuildingClick = (bid, unit) => this._onBuildingClick(bid, unit);
     renderer._onAbilityClick = (type) => this._onAbilityClick(type);
+    renderer._onUpgradeClick  = (type) => this._onUpgradeClick(type);
 
     document.addEventListener('dragend', () => this._onDragEnd());
     document.addEventListener('mousemove', e => {
@@ -167,6 +168,22 @@ export class InputController {
       this.renderer.showLog(msgs[result.reason] || result.reason);
     }
     this.renderer.refreshAbils();
+  }
+
+  _onUpgradeClick(type) {
+    const result = this.engine.researchUpgrade(type);
+    if (!result.ok) {
+      const msgs = {
+        'no upgrades': 'Aucune amélioration disponible !',
+        'max level reached': 'Niveau maximum atteint !',
+        'already researching': 'Recherche déjà en cours !',
+        'insufficient gold': 'Or insuffisant !',
+      };
+      this.renderer.showLog(msgs[result.reason] || result.reason);
+    } else {
+      this.renderer.showLog(result.upgrade.icon + ' Recherche : ' + result.upgrade.name + ' !');
+    }
+    this.renderer.refreshBldgs();
   }
 
   // ─────────────────────────────────────────────────

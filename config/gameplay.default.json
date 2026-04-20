@@ -1,5 +1,5 @@
 {
-  "_comment": "WarLane — Default Gameplay Configuration. All tuneable parameters.",
+  "_comment": "WarLane — Default Gameplay Configuration v3",
 
   "NC": 10,
   "SLOTS": 6,
@@ -13,19 +13,42 @@
   "AI_BUILDS": 2,
   "AI_MAX_UNITS": 10,
   "AI_CATAPULT_CHANCE": 0.45,
+  "AI_WALL_CHANCE": 0.30,
+  "AI_UPGRADE_CHANCE": 0.40,
 
   "MOVE_TICK": 900,
 
   "EVT_MIN": 20000,
   "EVT_MAX": 35000,
 
-  "SCORING": {
-    "balanceWeight": 0.35,
-    "durationWeight": 0.25,
-    "diversityWeight": 0.20,
-    "frontlineWeight": 0.20,
-    "idealDurationMs": 90000,
-    "maxDurationMs": 300000
+  "_comment_balance": "Dynamic balance: defender bonus when frontline is pushed back into home territory",
+  "DYNAMIC_BALANCE": {
+    "enabled": true,
+    "maxArmorBonus": 18,
+    "maxDmgBonus": 8,
+    "cqRateReduction": 0.55,
+    "goldBonusPerCell": 2.5,
+    "activationDepth": 3
+  },
+
+  "_comment_wall": "Wall unit — high HP/armor, zero attack, one per cell, undeployable after placement",
+  "wall": {
+    "name": "Mur",
+    "icon": "🧱",
+    "slots": 2,
+    "cost": 80,
+    "buildTime": 4000,
+    "hp": 600,
+    "armor": 40,
+    "dmg": 0,
+    "range": 0,
+    "rMin": 0,
+    "aspd": 99999,
+    "proj": null,
+    "splash": 0,
+    "maxPerCell": 1,
+    "immovable": true,
+    "abil": { "name": "Forteresse", "icon": "🏰", "desc": "Aucune capacité active", "cd": 999999 }
   },
 
   "units": {
@@ -48,7 +71,36 @@
         "icon": "💨",
         "desc": "Avance d'1 case et attaque en premier",
         "cd": 12000
-      }
+      },
+      "upgrades": [
+        {
+          "level": 1,
+          "name": "Bouclier renforcé",
+          "icon": "🛡",
+          "desc": "+20 HP, +4 Armure",
+          "cost": 120,
+          "researchTime": 8000,
+          "stat": { "hp": 20, "armor": 4 }
+        },
+        {
+          "level": 2,
+          "name": "Lame acérée",
+          "icon": "⚔️",
+          "desc": "+8 Dégâts, -200ms vitesse attaque",
+          "cost": 180,
+          "researchTime": 12000,
+          "stat": { "dmg": 8, "aspd": -200 }
+        },
+        {
+          "level": 3,
+          "name": "Chevalier d'élite",
+          "icon": "👑",
+          "desc": "+30 HP, +6 Armure, +6 Dégâts",
+          "cost": 280,
+          "researchTime": 18000,
+          "stat": { "hp": 30, "armor": 6, "dmg": 6 }
+        }
+      ]
     },
     "archer": {
       "name": "Archer",
@@ -69,7 +121,36 @@
         "icon": "🌧️",
         "desc": "Frappe toutes les unités d'une case visible",
         "cd": 18000
-      }
+      },
+      "upgrades": [
+        {
+          "level": 1,
+          "name": "Arc long",
+          "icon": "🎯",
+          "desc": "+1 Portée, +4 Dégâts",
+          "cost": 130,
+          "researchTime": 9000,
+          "stat": { "range": 1, "dmg": 4 }
+        },
+        {
+          "level": 2,
+          "name": "Flèches empoisonnées",
+          "icon": "☠️",
+          "desc": "+8 Dégâts, -300ms vitesse attaque",
+          "cost": 200,
+          "researchTime": 14000,
+          "stat": { "dmg": 8, "aspd": -300 }
+        },
+        {
+          "level": 3,
+          "name": "Maître archer",
+          "icon": "🌟",
+          "desc": "+20 HP, +10 Dégâts, +1 Portée",
+          "cost": 320,
+          "researchTime": 20000,
+          "stat": { "hp": 20, "dmg": 10, "range": 1 }
+        }
+      ]
     },
     "catapult": {
       "name": "Catapulte",
@@ -90,14 +171,44 @@
         "icon": "🔥",
         "desc": "Double dégâts sur la prochaine attaque",
         "cd": 25000
-      }
+      },
+      "upgrades": [
+        {
+          "level": 1,
+          "name": "Contrepoids",
+          "icon": "⚙️",
+          "desc": "+15 Dégâts, -500ms rechargement",
+          "cost": 200,
+          "researchTime": 12000,
+          "stat": { "dmg": 15, "aspd": -500 }
+        },
+        {
+          "level": 2,
+          "name": "Projectiles explosifs",
+          "icon": "💥",
+          "desc": "+20 Dégâts, splash +1 case",
+          "cost": 300,
+          "researchTime": 18000,
+          "stat": { "dmg": 20, "splash": 1 }
+        },
+        {
+          "level": 3,
+          "name": "Baliste de siège",
+          "icon": "🏹",
+          "desc": "+30 HP, +25 Dégâts, +1 Portée",
+          "cost": 450,
+          "researchTime": 25000,
+          "stat": { "hp": 30, "dmg": 25, "range": 1 }
+        }
+      ]
     }
   },
 
   "buildings": [
     { "id": "barracks", "name": "Caserne",      "icon": "🏰", "unit": "warrior"  },
     { "id": "range",    "name": "Stand de Tir", "icon": "🎯", "unit": "archer"   },
-    { "id": "foundry",  "name": "Fonderie",     "icon": "⚙️", "unit": "catapult" }
+    { "id": "foundry",  "name": "Fonderie",     "icon": "⚙️", "unit": "catapult" },
+    { "id": "mason",    "name": "Maçonnerie",   "icon": "🧱", "unit": "wall"     }
   ],
 
   "events": [

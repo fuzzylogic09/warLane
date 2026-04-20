@@ -479,19 +479,42 @@ async function init() {
 
 // ── Param ranges UI ─────────────────────────────────────────────────────
 const DISPLAY_PARAMS = {
-  'GBASE':              { label:'Or/s base',           group:'Économie'  },
-  'GCELL':              { label:'Or/s par case',        group:'Économie'  },
-  'CQRATE':             { label:'Vitesse conquête',     group:'Combat'    },
-  'AITICK':             { label:'Tick IA (ms)',          group:'IA'        },
-  'AI_MOVES':           { label:'Mouvements IA/tick',   group:'IA'        },
-  'MOVE_TICK':          { label:'Tick mouvement (ms)',  group:'Mouvement' },
-  'units.warrior.hp':   { label:'Guerrier PV',          group:'Unités'    },
-  'units.warrior.dmg':  { label:'Guerrier Dégâts',      group:'Unités'    },
-  'units.warrior.cost': { label:'Guerrier Coût',        group:'Unités'    },
-  'units.archer.hp':    { label:'Archer PV',            group:'Unités'    },
-  'units.archer.dmg':   { label:'Archer Dégâts',        group:'Unités'    },
-  'units.catapult.dmg': { label:'Catapulte Dégâts',     group:'Unités'    },
-  'units.catapult.cost':{ label:'Catapulte Coût',       group:'Unités'    },
+  // Économie
+  'GBASE':              { label:'Or/s base',             group:'Économie'  },
+  'GCELL':              { label:'Or/s par case',          group:'Économie'  },
+  'CQRATE':             { label:'Vitesse conquête',       group:'Combat'    },
+  'MAXG':               { label:'Or maximum',             group:'Économie'  },
+  // IA
+  'AITICK':             { label:'Tick IA (ms)',            group:'IA'        },
+  'AI_MOVES':           { label:'Mouvements IA/tick',     group:'IA'        },
+  'AI_CATAPULT_CHANCE': { label:'Prob. catapulte IA',     group:'IA'        },
+  'AI_WALL_CHANCE':     { label:'Prob. mur IA',           group:'IA'        },
+  'AI_UPGRADE_CHANCE':  { label:'Prob. amélio. IA',       group:'IA'        },
+  // Mouvement
+  'MOVE_TICK':          { label:'Tick mouvement (ms)',    group:'Mouvement' },
+  // Équilibre dynamique
+  'DYNAMIC_BALANCE.maxArmorBonus':   { label:'Bonus armure défense',   group:'Équilibre' },
+  'DYNAMIC_BALANCE.maxDmgBonus':     { label:'Bonus dégâts défense',   group:'Équilibre' },
+  'DYNAMIC_BALANCE.cqRateReduction': { label:'Réduction conquête',     group:'Équilibre' },
+  'DYNAMIC_BALANCE.activationDepth': { label:'Profondeur activation',  group:'Équilibre' },
+  // Mur
+  'wall.hp':       { label:'Mur PV',      group:'Mur'    },
+  'wall.armor':    { label:'Mur Armure',  group:'Mur'    },
+  'wall.cost':     { label:'Mur Coût',    group:'Mur'    },
+  // Unités
+  'units.warrior.hp':    { label:'Guerrier PV',    group:'Unités' },
+  'units.warrior.dmg':   { label:'Guerrier Dégâts',group:'Unités' },
+  'units.warrior.cost':  { label:'Guerrier Coût',  group:'Unités' },
+  'units.archer.hp':     { label:'Archer PV',      group:'Unités' },
+  'units.archer.dmg':    { label:'Archer Dégâts',  group:'Unités' },
+  'units.catapult.dmg':  { label:'Catapulte Dégâts',group:'Unités'},
+  'units.catapult.cost': { label:'Catapulte Coût', group:'Unités' },
+  // Améliorations (coût uniquement, pour ne pas surcharger l UI)
+  'units.warrior.upgrades.0.cost':  { label:'Guerrier Upg.1 Coût', group:'Améliorations' },
+  'units.warrior.upgrades.1.cost':  { label:'Guerrier Upg.2 Coût', group:'Améliorations' },
+  'units.archer.upgrades.0.cost':   { label:'Archer Upg.1 Coût',   group:'Améliorations' },
+  'units.archer.upgrades.1.cost':   { label:'Archer Upg.2 Coût',   group:'Améliorations' },
+  'units.catapult.upgrades.0.cost': { label:'Catapulte Upg.1 Coût',group:'Améliorations' },
 };
 
 function buildParamRanges() {

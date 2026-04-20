@@ -209,6 +209,17 @@ body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',serif;
 /* Pause button must sit above the overlay */
 #pbtn{position:relative;z-index:160;}
 
+/* wall unit token */
+.wall-tok{cursor:default;border-color:rgba(201,168,76,.6)!important;
+  background:rgba(201,168,76,.12)!important;opacity:.95;}
+/* cell with wall gets subtle gold glow */
+.cell.has-wall{box-shadow:inset 0 0 6px rgba(201,168,76,.25);}
+
+/* dynamic balance depth indicator */
+.cell.depth-1{border-width:2px;}
+.cell.depth-2{border-width:2px;filter:brightness(1.08);}
+.cell.depth-3{border-width:2px;filter:brightness(1.16);}
+
 @media(max-width:600px){
   .hud-title{font-size:12px;letter-spacing:2px;}
   .bcard{min-width:95px;padding:4px 6px;}

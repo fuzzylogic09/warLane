@@ -96,8 +96,13 @@ export function scoreResult(stats, weights) {
   const frontlineDynamicsScore = changeScore * 0.6 + varScore * 0.4;
 
   // ── Stalemate penalty ─────────────────────────────────────────
-  const stalematePenalty = stats.stalemateMs > stalemateThresholdMs
-    ? Math.min(0.3, (stats.stalemateMs - stalemateThresholdMs) / maxDurationMs * 0.5)
+  // Draws are not stalemates if the frontline was active — check frontline variance
+  const flHistory2  = stats.frontlineHistory || [];
+  const flVar2      = _variance(flHistory2.filter(v => v >= 0));
+  const isDynDraw   = stats.winner === 'draw' || stats.winner === null;
+  // Only penalise truly static stalemates (low frontline variance + long duration)
+  const stalematePenalty = (stats.stalemateMs > stalemateThresholdMs && flVar2 < 1.5)
+    ? Math.min(0.25, (stats.stalemateMs - stalemateThresholdMs) / maxDurationMs * 0.4)
     : 0;
 
   // ── Final weighted score ─────────────────────────────────────
