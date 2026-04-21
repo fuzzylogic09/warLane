@@ -432,59 +432,6 @@ export class Renderer {
       row.appendChild(card);
     });
     this._renderAbils();
-    this._renderUpgrades();
-  }
-
-  _renderUpgrades() {
-    let row = document.getElementById('upgrade-row');
-    if (!row) {
-      row = document.createElement('div');
-      row.id = 'upgrade-row';
-      row.style.cssText = 'display:flex;gap:5px;padding:4px 10px 0;overflow-x:auto;flex-wrap:wrap;';
-      document.getElementById('bpanel')?.appendChild(row);
-    }
-    row.innerHTML = '';
-    Object.keys(this.config.units).forEach(type => {
-      const def = this.config.units[type];
-      const level = this.state.upgrades?.player?.[type] || 0;
-      const queue = this.state.upgradeQueues?.player?.[type];
-      const nextUpg = def.upgrades?.[level];
-      if (!nextUpg) return; // max level
-
-      const pct = queue ? (queue.elapsed / queue.total * 100) : 0;
-      const canAfford = this.state.gold.p >= nextUpg.cost;
-      const card = document.createElement('div');
-      card.className = 'bcard' + (queue || !canAfford ? ' bcool' : '');
-      card.style.minWidth = '120px';
-      card.innerHTML = `<div class="bn" style="font-size:9px">${nextUpg.icon} ${nextUpg.name}</div>
-        <div class="br"><span class="bs" style="font-size:8px">${def.icon} Niv.${level+1}</span>
-        <span class="bc">💰${nextUpg.cost}</span></div>
-        <div class="bq">${queue ? `Recherche...` : (canAfford ? 'Disponible' : 'Or insuffisant')}</div>
-        <div class="bp" style="width:${pct}%"></div>`;
-      if (!queue && canAfford) {
-        card.addEventListener('click', () => this._onUpgradeClick?.(type));
-      }
-      card.addEventListener('mouseenter', e => {
-        const tt = document.getElementById('tt');
-        tt.innerHTML = `<h4>${nextUpg.icon} ${nextUpg.name}</h4>
-          <div>${nextUpg.desc}</div>
-          <div class="tr"><span>Coût</span><span class="tv">💰${nextUpg.cost}</span></div>
-          <div class="tr"><span>Temps</span><span class="tv">${(nextUpg.researchTime/1000).toFixed(1)}s</span></div>
-          <div class="tr"><span>Niveau actuel</span><span class="tv">${level}/3</span></div>`;
-        tt.style.display = 'block';
-        const x = Math.min(e.clientX+12, innerWidth-190), y = Math.min(e.clientY+12, innerHeight-160);
-        tt.style.left = x+'px'; tt.style.top = y+'px';
-      });
-      card.addEventListener('mouseleave', () => hideTip());
-      row.appendChild(card);
-
-      // Level indicators
-      const lvlEl = document.createElement('div');
-      lvlEl.style.cssText = 'position:absolute;top:2px;left:4px;font-size:7px;color:var(--gold-l)';
-      lvlEl.textContent = '★'.repeat(level) + '☆'.repeat(3-level);
-      card.style.position = 'relative';
-      card.appendChild(lvlEl);
-    });
   }
 
   // ─────────────────────────────────────────────────

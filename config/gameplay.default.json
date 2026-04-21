@@ -1,45 +1,39 @@
 {
   "_comment": "WarLane — Default Gameplay Configuration v3",
-
   "NC": 10,
   "SLOTS": 6,
   "GBASE": 18,
   "GCELL": 1.2,
-  "CQRATE": 0.012,
+  "CQRATE": 0.018,
   "MAXG": 999,
-
   "AITICK": 550,
   "AI_MOVES": 3,
   "AI_BUILDS": 2,
-  "AI_MAX_UNITS": 10,
+  "AI_MAX_UNITS": 8,
   "AI_CATAPULT_CHANCE": 0.45,
-  "AI_WALL_CHANCE": 0.30,
-  "AI_UPGRADE_CHANCE": 0.40,
-
+  "AI_WALL_CHANCE": 0.3,
+  "AI_UPGRADE_CHANCE": 0.4,
   "MOVE_TICK": 900,
-
   "EVT_MIN": 20000,
   "EVT_MAX": 35000,
-
   "_comment_balance": "Dynamic balance: defender bonus when frontline is pushed back into home territory",
   "DYNAMIC_BALANCE": {
-    "enabled": true,
-    "maxArmorBonus": 18,
-    "maxDmgBonus": 8,
-    "cqRateReduction": 0.55,
+    "enabled": false,
+    "maxArmorBonus": 10,
+    "maxDmgBonus": 4,
+    "cqRateReduction": 0.35,
     "goldBonusPerCell": 2.5,
-    "activationDepth": 3
+    "activationDepth": 2
   },
-
   "_comment_wall": "Wall unit — high HP/armor, zero attack, one per cell, undeployable after placement",
   "wall": {
     "name": "Mur",
     "icon": "🧱",
     "slots": 2,
-    "cost": 80,
+    "cost": 90,
     "buildTime": 4000,
-    "hp": 600,
-    "armor": 40,
+    "hp": 180,
+    "armor": 16,
     "dmg": 0,
     "range": 0,
     "rMin": 0,
@@ -48,9 +42,15 @@
     "splash": 0,
     "maxPerCell": 1,
     "immovable": true,
-    "abil": { "name": "Forteresse", "icon": "🏰", "desc": "Aucune capacité active", "cd": 999999 }
+    "abil": {
+      "name": "Forteresse",
+      "icon": "🏰",
+      "desc": "Aucune capacité active",
+      "cd": 999999
+    },
+    "maxActive": 1,
+    "costScaling": 1.0
   },
-
   "units": {
     "warrior": {
       "name": "Guerrier",
@@ -80,7 +80,10 @@
           "desc": "+20 HP, +4 Armure",
           "cost": 120,
           "researchTime": 8000,
-          "stat": { "hp": 20, "armor": 4 }
+          "stat": {
+            "hp": 20,
+            "armor": 4
+          }
         },
         {
           "level": 2,
@@ -89,7 +92,10 @@
           "desc": "+8 Dégâts, -200ms vitesse attaque",
           "cost": 180,
           "researchTime": 12000,
-          "stat": { "dmg": 8, "aspd": -200 }
+          "stat": {
+            "dmg": 8,
+            "aspd": -200
+          }
         },
         {
           "level": 3,
@@ -98,7 +104,11 @@
           "desc": "+30 HP, +6 Armure, +6 Dégâts",
           "cost": 280,
           "researchTime": 18000,
-          "stat": { "hp": 30, "armor": 6, "dmg": 6 }
+          "stat": {
+            "hp": 30,
+            "armor": 6,
+            "dmg": 6
+          }
         }
       ]
     },
@@ -114,7 +124,11 @@
       "range": 3,
       "rMin": 0,
       "aspd": 2200,
-      "proj": { "col": "#c9a84c", "spd": 0.55, "sz": 3 },
+      "proj": {
+        "col": "#c9a84c",
+        "spd": 0.55,
+        "sz": 3
+      },
       "splash": 0,
       "abil": {
         "name": "Barrage",
@@ -130,7 +144,10 @@
           "desc": "+1 Portée, +4 Dégâts",
           "cost": 130,
           "researchTime": 9000,
-          "stat": { "range": 1, "dmg": 4 }
+          "stat": {
+            "range": 1,
+            "dmg": 4
+          }
         },
         {
           "level": 2,
@@ -139,7 +156,10 @@
           "desc": "+8 Dégâts, -300ms vitesse attaque",
           "cost": 200,
           "researchTime": 14000,
-          "stat": { "dmg": 8, "aspd": -300 }
+          "stat": {
+            "dmg": 8,
+            "aspd": -300
+          }
         },
         {
           "level": 3,
@@ -148,7 +168,11 @@
           "desc": "+20 HP, +10 Dégâts, +1 Portée",
           "cost": 320,
           "researchTime": 20000,
-          "stat": { "hp": 20, "dmg": 10, "range": 1 }
+          "stat": {
+            "hp": 20,
+            "dmg": 10,
+            "range": 1
+          }
         }
       ]
     },
@@ -164,7 +188,11 @@
       "range": 6,
       "rMin": 2,
       "aspd": 4500,
-      "proj": { "col": "#ff6600", "spd": 0.30, "sz": 6 },
+      "proj": {
+        "col": "#ff6600",
+        "spd": 0.3,
+        "sz": 6
+      },
       "splash": 1,
       "abil": {
         "name": "Bombardement",
@@ -180,7 +208,10 @@
           "desc": "+15 Dégâts, -500ms rechargement",
           "cost": 200,
           "researchTime": 12000,
-          "stat": { "dmg": 15, "aspd": -500 }
+          "stat": {
+            "dmg": 15,
+            "aspd": -500
+          }
         },
         {
           "level": 2,
@@ -189,7 +220,10 @@
           "desc": "+20 Dégâts, splash +1 case",
           "cost": 300,
           "researchTime": 18000,
-          "stat": { "dmg": 20, "splash": 1 }
+          "stat": {
+            "dmg": 20,
+            "splash": 1
+          }
         },
         {
           "level": 3,
@@ -198,79 +232,131 @@
           "desc": "+30 HP, +25 Dégâts, +1 Portée",
           "cost": 450,
           "researchTime": 25000,
-          "stat": { "hp": 30, "dmg": 25, "range": 1 }
+          "stat": {
+            "hp": 30,
+            "dmg": 25,
+            "range": 1
+          }
         }
       ]
     }
   },
-
   "buildings": [
-    { "id": "barracks", "name": "Caserne",      "icon": "🏰", "unit": "warrior"  },
-    { "id": "range",    "name": "Stand de Tir", "icon": "🎯", "unit": "archer"   },
-    { "id": "foundry",  "name": "Fonderie",     "icon": "⚙️", "unit": "catapult" },
-    { "id": "mason",    "name": "Maçonnerie",   "icon": "🧱", "unit": "wall"     }
+    {
+      "id": "barracks",
+      "name": "Caserne",
+      "icon": "🏰",
+      "unit": "warrior"
+    },
+    {
+      "id": "range",
+      "name": "Stand de Tir",
+      "icon": "🎯",
+      "unit": "archer"
+    },
+    {
+      "id": "foundry",
+      "name": "Fonderie",
+      "icon": "⚙️",
+      "unit": "catapult"
+    },
+    {
+      "id": "mason",
+      "name": "Maçonnerie",
+      "icon": "🧱",
+      "unit": "wall"
+    }
   ],
-
   "events": [
     {
       "id": "reinforce_player",
       "txt": "🛡 RENFORTS ! Un guerrier allié rejoint la mêlée.",
       "type": "reinforce",
-      "params": { "unit": "warrior", "owner": "player" }
+      "params": {
+        "unit": "warrior",
+        "owner": "player"
+      }
     },
     {
       "id": "reinforce_enemy",
       "txt": "🛡 RENFORTS ENNEMIS ! Un guerrier ennemi rejoint la mêlée.",
       "type": "reinforce",
-      "params": { "unit": "warrior", "owner": "enemy" }
+      "params": {
+        "unit": "warrior",
+        "owner": "enemy"
+      }
     },
     {
       "id": "goldrain_player",
       "txt": "💰 PLUIE D'OR ! Bonus de 150 pièces pour vous.",
       "type": "goldBonus",
-      "params": { "owner": "player", "amount": 150 }
+      "params": {
+        "owner": "player",
+        "amount": 150
+      }
     },
     {
       "id": "goldrain_enemy",
       "txt": "💰 PLUIE D'OR ENNEMIE ! L'ennemi reçoit 150 pièces.",
       "type": "goldBonus",
-      "params": { "owner": "enemy", "amount": 150 }
+      "params": {
+        "owner": "enemy",
+        "amount": 150
+      }
     },
     {
       "id": "frenzy_player",
       "txt": "⚡ FRÉNÉSIE ! Toutes vos unités attaquent 2x plus vite pendant 8s.",
       "type": "buff",
-      "params": { "owner": "player", "buffName": "frenzy", "duration": 8000 }
+      "params": {
+        "owner": "player",
+        "buffName": "frenzy",
+        "duration": 8000
+      }
     },
     {
       "id": "frenzy_enemy",
       "txt": "⚡ FRÉNÉSIE ENNEMIE ! Les unités ennemies attaquent 2x plus vite pendant 8s.",
       "type": "buff",
-      "params": { "owner": "enemy", "buffName": "frenzy", "duration": 8000 }
+      "params": {
+        "owner": "enemy",
+        "buffName": "frenzy",
+        "duration": 8000
+      }
     },
     {
       "id": "plague_enemy",
       "txt": "☠ PESTE ! L'ennemi subit une épidémie : ses unités perdent 20 PV.",
       "type": "plague",
-      "params": { "owner": "enemy", "damage": 20 }
+      "params": {
+        "owner": "enemy",
+        "damage": 20
+      }
     },
     {
       "id": "plague_player",
       "txt": "☠ ÉPIDÉMIE ! Vos unités sont affectées et perdent 20 PV.",
       "type": "plague",
-      "params": { "owner": "player", "damage": 20 }
+      "params": {
+        "owner": "player",
+        "damage": 20
+      }
     },
     {
       "id": "fortify_player",
       "txt": "🏰 FORTIFICATION ! Votre case la plus avancée est renforcée.",
       "type": "fortify",
-      "params": { "owner": "player" }
+      "params": {
+        "owner": "player"
+      }
     },
     {
       "id": "fortify_enemy",
       "txt": "🏰 FORTIFICATION ENNEMIE ! La case ennemie la plus avancée est renforcée.",
       "type": "fortify",
-      "params": { "owner": "enemy" }
+      "params": {
+        "owner": "enemy"
+      }
     }
   ]
 }

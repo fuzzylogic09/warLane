@@ -46,8 +46,8 @@ export class GameState {
     this.eventTimer = 0;
     this.nextEventAt = 0;
 
-    // Unit ID counter
-    this.nextUnitId = 1;
+    // Pending wall placement (player built a wall, waiting to choose a cell)
+    this.pendingWall = false;
 
     // ── Simulation stats ──────────────────────────────────────────
     this.stats = {

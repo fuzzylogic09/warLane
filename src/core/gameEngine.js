@@ -111,11 +111,17 @@ export class GameEngine {
         if (it.elapsed >= it.total) {
           st.queue.shift();
           if (it.unit === 'wall') {
-            // Wall: find the best cell to place it (frontmost own cell without a wall)
-            const ci = this._bestWallCell(owner);
-            if (ci !== -1) {
-              this._placeWall(owner, ci);
-              this._emit('wallPlaced', { owner, ci });
+            if (owner === 'player' && !this.headless) {
+              // Interactive player places the wall manually
+              s.pendingWall = true;
+              this._emit('wallReady', { owner });
+            } else {
+              // AI or headless player: auto-place
+              const ci = this._bestWallCell(owner);
+              if (ci !== -1) {
+                this._placeWall(owner, ci);
+                this._emit('wallPlaced', { owner, ci });
+              }
             }
           } else {
             const ci = this._bestCell(owner);
@@ -338,21 +344,30 @@ export class GameEngine {
       const wallSlots = nextCell.wall ? nextCell.wall.slots : 0;
       const usedSlots = nextCell.units.reduce((sum, u) => sum + this._unitDef(u).slots, 0) + wallSlots;
       const mySlots   = this._unitDef(unit).slots;
-
-      // TRANSIT: if cell is full but unit is just passing through, allow it as transit
-      // Transit means unit doesn't "settle" in this cell, keeps moving next tick
       const isFull    = usedSlots + mySlots > SLOTS;
       const isDestination = nextCi === currentDest;
 
       if (isFull && isDestination) {
-        // Can't fit at destination — find next available cell
+        // Can't fit at destination — scan further in the same direction for space
         const alt = this._findAlternativeDestination(unit, fromCi, currentDest, dir);
         if (alt !== -1 && alt !== fromCi) {
           s.moveOrders.set(uid, alt);
+          // Don't return — we might still be able to step into nextCi as transit
+          // If nextCi is on the way to alt, fall through to move; otherwise wait
+          const altDir = alt > fromCi ? 1 : -1;
+          if (altDir !== dir) { done.push(uid); return; } // different direction, cancel
         } else {
-          done.push(uid);
+          done.push(uid); return; // nowhere to go
         }
-        return;
+      }
+
+      // If cell is full and it's NOT the destination, allow transit (unit passes through)
+      // Unit physically enters but is marked inTransit — no combat engagement from that cell
+      // However, if it can't physically fit (slots overflow), skip this tick and retry next
+      if (isFull && !isDestination) {
+        // Transit allowed: unit passes through, will keep moving next tick
+        // But we still need at least one slot free conceptually — allow overflow for transit
+        // (unit is just passing through, not settling)
       }
 
       // Move one step
@@ -399,11 +414,17 @@ export class GameEngine {
     if (s.aiTimer < AITICK) return;
     s.aiTimer = 0;
 
+    // Enemy AI runs at full strength
     this._runSideAI('enemy', AI_BUILDS, AI_MOVES, AI_MAX_UNITS, AI_CATAPULT_CHANCE,
                     AI_WALL_CHANCE, AI_UPGRADE_CHANCE);
+
+    // Headless player AI runs with a small random handicap to break symmetry
     if (this.headless) {
-      this._runSideAI('player', AI_BUILDS, AI_MOVES, AI_MAX_UNITS, AI_CATAPULT_CHANCE,
-                      AI_WALL_CHANCE, AI_UPGRADE_CHANCE);
+      // Randomly skip ~20% of AI ticks for player to create variance
+      if (this.rng() > 0.2) {
+        this._runSideAI('player', AI_BUILDS, AI_MOVES, AI_MAX_UNITS, AI_CATAPULT_CHANCE,
+                        AI_WALL_CHANCE, AI_UPGRADE_CHANCE);
+      }
     }
   }
 
@@ -432,6 +453,11 @@ export class GameEngine {
   // Player actions
   // ─────────────────────────────────────────────────
 
+  /** Count active walls for an owner */
+  _wallCount(owner) {
+    return this.state.cells.filter(c => c.wall?.owner === owner).length;
+  }
+
   queueUnit(buildingId, unitType) {
     const s = this.state, cfg = this.config;
     const st = s.buildings[buildingId];
@@ -442,24 +468,34 @@ export class GameEngine {
     if (!uDef)            return { ok: false, reason: 'unknown unit' };
     if (s.gold.p < uDef.cost) return { ok: false, reason: 'insufficient gold' };
 
-    // Wall: check if there's a valid cell to place it
-    if (unitType === 'wall' && this._bestWallCell('player') === -1)
-      return { ok: false, reason: 'no valid cell for wall' };
+    // Wall: check max active limit — count walls already on field + in queue
+    if (unitType === 'wall') {
+      const activeWalls = this._wallCount('player');
+      const queuedWalls = st.queue.filter(q => q.unit === 'wall').length;
+      const maxWalls = cfg.wall.maxActive ?? 1;
+      if (activeWalls + queuedWalls >= maxWalls)
+        return { ok: false, reason: `wall limit reached (max ${maxWalls})` };
+    }
 
     s.gold.p -= uDef.cost;
-    st.queue.push({ elapsed: 0, total: uDef.buildTime, unit: unitType });
-    return { ok: true };
+    st.queue.push({ elapsed: 0, total: uDef.buildTime, unit: unitType,
+      pendingPlacement: unitType === 'wall' }); // wall needs explicit placement
+    return { ok: true, pendingPlacement: unitType === 'wall' };
   }
 
-  /** Place a wall on a specific cell (player action) */
+  /** Place the pending wall on a specific cell (player action, triggered after wall finishes building) */
   placeWall(ci) {
     const s = this.state, cfg = this.config;
+    if (!s.pendingWall)   return { ok: false, reason: 'no wall ready to place' };
     const cell = s.cells[ci];
-    if (!cell)                 return { ok: false, reason: 'invalid cell' };
+    if (!cell)            return { ok: false, reason: 'invalid cell' };
     if (cell.owner !== 'player') return { ok: false, reason: 'not your cell' };
-    if (cell.wall)             return { ok: false, reason: 'wall already here' };
-    if (s.gold.p < cfg.wall.cost) return { ok: false, reason: 'insufficient gold' };
-    s.gold.p -= cfg.wall.cost;
+    if (cell.wall)        return { ok: false, reason: 'wall already here' };
+    const wallSl   = cfg.wall.slots || 2;
+    const usedSlots = cell.units.reduce((sum, u) => sum + (cfg.units[u.type]?.slots || 1), 0);
+    if (usedSlots + wallSl > cfg.SLOTS)
+      return { ok: false, reason: 'not enough slots on this cell' };
+    s.pendingWall = false;
     this._placeWall('player', ci);
     this._emit('wallPlaced', { owner: 'player', ci });
     return { ok: true };
@@ -714,14 +750,17 @@ export class GameEngine {
   _canStep(unit, fromCi, nextCi) {
     const dest = this.state.cells[nextCi];
     if (unit.owner === 'player') {
-      if (dest.owner === 'player') return true;
+      if (dest.owner === 'player')  return true;
       if (dest.owner === 'neutral') return true;
-      // Enemy cell: only enter if no enemies present (attacking is handled by combat)
-      return !dest.units.some(u => u.owner === 'enemy') && !dest.wall;
+      // Enemy cell: blocked if enemy units present OR enemy wall present
+      const hasEnemyWall = dest.wall && dest.wall.owner === 'enemy';
+      return !dest.units.some(u => u.owner === 'enemy') && !hasEnemyWall;
     } else {
-      if (dest.owner === 'enemy')  return true;
+      if (dest.owner === 'enemy')   return true;
       if (dest.owner === 'neutral') return true;
-      return !dest.units.some(u => u.owner === 'player') && !dest.wall;
+      // Player cell: blocked if player units present OR player wall present
+      const hasPlayerWall = dest.wall && dest.wall.owner === 'player';
+      return !dest.units.some(u => u.owner === 'player') && !hasPlayerWall;
     }
   }
 
@@ -811,9 +850,14 @@ export class GameEngine {
 
     // AI: place walls on front cell if under pressure
     if (this.rng() < AI_WALL_CHANCE && this.config.buildings.some(b => b.id === 'mason')) {
-      const wallCell = this._bestWallCell(owner);
-      if (wallCell !== -1 && !s.cells[wallCell].wall) {
-        tryBuild('mason', 'wall', 99, 2);
+      const maxWalls = this.config.wall.maxActive ?? 1;
+      const activeWalls = this._wallCount(owner);
+      const queuedWalls = bldgStore['mason']?.queue.filter(q => q.unit === 'wall').length || 0;
+      if (activeWalls + queuedWalls < maxWalls) {
+        const wallCell = this._bestWallCell(owner);
+        if (wallCell !== -1 && !s.cells[wallCell].wall) {
+          tryBuild('mason', 'wall', 99, 2);
+        }
       }
     }
 
