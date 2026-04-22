@@ -429,7 +429,7 @@ pre.config-json{background:var(--bg3);border:1px solid var(--border);border-radi
   - charts object declared BEFORE applyTheme so it can be safely checked.
 ══════════════════════════════════════════ -->
 <script type="module">
-import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js';
+import { DEFAULT_PARAM_SPACE } from './src/core/randomSearch.js?v=1776871052';
 
 // ── Charts object declared first so applyTheme can safely reference it ──
 const charts = {};
@@ -462,8 +462,8 @@ const HISTORY_KEY = 'warlane_opt_history';
 
 // ── Init ────────────────────────────────────────────────────────────────
 async function init() {
-  baseConfig     = await fetch('./config/gameplay.default.json').then(r => r.json());
-  scoringWeights = await fetch('./config/scoring.default.json').then(r => r.json());
+  baseConfig     = await fetch('./config/gameplay.default.json?v=1776871070').then(r => r.json());
+  scoringWeights = await fetch('./config/scoring.default.json?v=1776871070').then(r => r.json());
   buildParamRanges();
   initCharts();
   loadHistory();

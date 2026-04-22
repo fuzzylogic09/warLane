@@ -11,7 +11,7 @@
 export class Renderer {
   constructor(root, state, config) {
     this.root = root;
-    this.state = state;
+    this._stateRef = state;  // initial ref; call setEngine() after engine.init() to stay in sync
     this.config = config;
     this.canvas = null;
     this.ctx = null;
@@ -20,9 +20,23 @@ export class Renderer {
     this._onUnitClick = null;
     this._onUnitDragStart = null;
     this._onCellDrop = null;
-    this._drag = null; // drag state reference passed in from controller
-    this._tsel = null; // touch selection reference
+    this._drag = null;
+    this._tsel = null;
   }
+
+  /**
+   * Call after every engine.init() so the renderer always reads
+   * the current GameState (engine.init replaces this.state with a new object).
+   */
+  setEngine(engine) {
+    this._engine = engine;
+  }
+
+  /** Always returns the live state, even after engine.init() replaces it. */
+  get state() {
+    return this._engine ? this._engine.state : this._stateRef;
+  }
+  set state(v) { this._stateRef = v; }
 
   /** Mount DOM skeleton */
   mount() {

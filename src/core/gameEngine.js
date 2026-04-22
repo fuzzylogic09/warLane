@@ -314,16 +314,25 @@ export class GameEngine {
       if (!unit) { done.push(uid); return; }
       if (fromCi === destCi) { done.push(uid); return; }
 
-      // --- Destination safety check: retreat if captured ---
+      // --- Destination safety check ---
+      // Only redirect to retreat if the unit itself is currently in enemy territory
+      // (meaning it was overrun while moving). Do NOT retreat just because the
+      // destination cell changed owners — that's handled by cancelling the order quietly.
       const destCell = s.cells[destCi];
-      if (destCell && destCell.owner !== unit.owner && destCell.owner !== 'neutral') {
-        // Destination taken by enemy — find nearest safe retreat cell
+      const unitCell = s.cells[fromCi];
+
+      // If the unit's current cell was captured by enemy while moving, retreat
+      if (unitCell && unitCell.owner === 'enemy') {
         const safeCI = this._nearestSafeCell(unit, fromCi);
-        if (safeCI === fromCi || safeCI === -1) {
-          done.push(uid); return; // already safe, cancel order
+        if (safeCI !== fromCi && safeCI !== -1) {
+          s.moveOrders.set(uid, safeCI);
+        } else {
+          done.push(uid); return;
         }
-        s.moveOrders.set(uid, safeCI); // update destination to retreat
-        // Continue moving toward safety below
+      }
+      // If destination is now enemy-held, just cancel the order (don't retreat)
+      else if (destCell && destCell.owner === 'enemy') {
+        done.push(uid); return;
       }
 
       const currentDest = s.moveOrders.get(uid);

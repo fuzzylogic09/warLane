@@ -7,7 +7,7 @@ import { GameEngine }       from './src/core/gameEngine.js';
 import { Renderer }         from './src/ui/renderer.js';
 import { InputController }  from './src/ui/inputController.js';
 
-const CONFIG_URL = './config/gameplay.default.json';
+const CONFIG_URL = './config/gameplay.default.json?v=1776871052';
 
 let engine, renderer, controller;
 let lastTs = 0;
@@ -29,6 +29,7 @@ async function bootstrap() {
 
   engine   = new GameEngine(config);
   renderer = new Renderer(document.getElementById('bwrap'), engine.state, config);
+  renderer.setEngine(engine); // wire engine reference for live state access
   renderer.mount();
   controller = new InputController(engine, renderer);
 
@@ -272,6 +273,7 @@ function initGame() {
   renderer.hideGameOver();
   controller.cancelTsel();
   engine.init();
+  renderer.setEngine(engine); // CRITICAL: update state reference after init() replaces state
   renderer.mount();
   // Must be called AFTER engine.init() so state.buildings is populated
   renderer.refreshBldgs();
