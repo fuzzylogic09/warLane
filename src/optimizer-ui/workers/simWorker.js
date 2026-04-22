@@ -23,8 +23,14 @@ self.addEventListener('message', async (e) => {
   const { type, options } = e.data;
 
   if (type === 'run') {
+    // Ensure seed is non-zero and unique even if multiple workers start at same millisecond
+    const seed = options.seed && options.seed !== 0
+      ? options.seed
+      : (Date.now() ^ (Math.random() * 0xFFFFFFFF >>> 0)) >>> 0;
+
     const result = runSimulationBatch({
       ...options,
+      seed,
       onProgress: (done, total, best) => {
         self.postMessage({ type: 'progress', done, total, best: best ? _safeResult(best) : null });
       },
@@ -33,8 +39,13 @@ self.addEventListener('message', async (e) => {
   }
 
   if (type === 'runFixed') {
+    const seed = options.seed && options.seed !== 0
+      ? options.seed
+      : (Date.now() ^ (Math.random() * 0xFFFFFFFF >>> 0)) >>> 0;
+
     const result = runFixedConfigBatch(options.config, options.scoringWeights, {
       ...options,
+      seed,
       onProgress: (done, total) => {
         self.postMessage({ type: 'progress', done, total, best: null });
       },

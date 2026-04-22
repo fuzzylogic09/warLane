@@ -49,6 +49,9 @@ export class GameState {
     // Pending wall placement (player built a wall, waiting to choose a cell)
     this.pendingWall = false;
 
+    // Unit ID counter — MUST be initialized here, never NaN
+    this.nextUnitId = 1;
+
     // ── Simulation stats ──────────────────────────────────────────
     this.stats = {
       frontlineChanges: 0,

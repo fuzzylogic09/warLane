@@ -29,9 +29,39 @@ export class Renderer {
     this.canvas = this.root.querySelector('#ac');
     this.ctx = this.canvas?.getContext('2d');
     this._renderCells();
-    this._renderBldgs();
-    this._renderAbils();
+    // _renderBldgs and _renderAbils called by main.js after engine.init()
     this._updateGoldUI();
+    // Use event delegation on lane for tooltips - avoids stale listeners after DOM rebuild
+    this._attachLaneDelegation();
+  }
+
+  _attachLaneDelegation() {
+    const lane = document.getElementById('lane');
+    if (!lane || lane._delegated) return;
+    lane._delegated = true;
+
+    // Tooltip via delegation: find the nearest .utok ancestor
+    lane.addEventListener('mouseover', e => {
+      const tok = e.target.closest('.utok[data-uid]');
+      if (!tok) return;
+      const uid = +tok.dataset.uid;
+      const ci  = +tok.dataset.ci;
+      const cell = this.state?.cells?.[ci];
+      if (!cell) return;
+      const unit = cell.units.find(u => u.id === uid);
+      if (unit) this._showUnitTip(e, unit);
+    });
+    lane.addEventListener('mouseout', e => {
+      const tok = e.target.closest('.utok[data-uid]');
+      if (tok && !tok.contains(e.relatedTarget)) hideTip();
+    });
+    lane.addEventListener('mousemove', e => {
+      const tt = document.getElementById('tt');
+      if (tt?.style.display === 'block') {
+        tt.style.left = Math.min(e.clientX+12, innerWidth-190)+'px';
+        tt.style.top  = Math.min(e.clientY+12, innerHeight-160)+'px';
+      }
+    });
   }
 
   /** Full render pass — called each animation frame */
@@ -374,15 +404,16 @@ export class Renderer {
     const hp = unit.hp / unit.mhp;
     const hpc = hp > 0.6 ? 'hi' : hp > 0.3 ? 'md' : 'lo';
     const def = this.config.units[unit.type];
-    tok.innerHTML = `<span class="ui">${def.icon}</span><span class="uh">${unit.hp}</span>
-      <div class="uhbar"><div class="uhfill ${hpc}" style="width:${hp * 100}%"></div></div>`;
+    tok.innerHTML = `<span class="ui">${def.icon}</span><span class="uh">${Math.ceil(Math.max(0,unit.hp))}</span>
+      <div class="uhbar"><div class="uhfill ${hpc}" style="width:${Math.max(0,hp) * 100}%"></div></div>`;
     if (unit.owner === 'player') {
       tok.draggable = true;
       tok.addEventListener('dragstart', e => this._onUnitDragStart?.(e, unit.id, ci));
-      tok.addEventListener('mouseenter', e => this._showUnitTip(e, unit));
-      tok.addEventListener('mouseleave', () => hideTip());
+      // Tooltip now via lane delegation (see _attachLaneDelegation) — avoids stale listeners
       tok.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); this._onUnitClick?.(unit.id, ci); });
       tok.addEventListener('click', e => { e.stopPropagation(); this._onUnitClick?.(unit.id, ci); });
+    } else {
+      // Enemy units: still show tooltip on hover via delegation, no click
     }
     return tok;
   }
@@ -472,12 +503,18 @@ export class Renderer {
 
   _showUnitTip(e, unit) {
     const d = this.config.units[unit.type];
+    if (!d) return;
     const tt = document.getElementById('tt');
-    tt.innerHTML = `<h4>${d.icon} ${d.name}</h4>
-      <div class="tr"><span>PV</span><span class="tv">${unit.hp}/${unit.mhp}</span></div>
-      <div class="tr"><span>Armure</span><span class="tv">${d.armor}</span></div>
-      <div class="tr"><span>Dégâts</span><span class="tv">${d.dmg}</span></div>
-      <div class="tr"><span>Portée</span><span class="tv">${d.rMin > 0 ? d.rMin + '–' : ''}${d.range} case${d.range > 1 ? 's' : ''}</span></div>
+    const hp = Math.ceil(Math.max(0, unit.hp));
+    // Apply upgrade bonuses for display
+    const lvl   = this.state.upgrades?.[unit.owner]?.[unit.type] || 0;
+    let eff = { ...d };
+    for(let i=0;i<lvl;i++){const u=d.upgrades?.[i];if(u) Object.entries(u.stat).forEach(([k,v])=>{eff[k]=(eff[k]||0)+v;});}
+    tt.innerHTML = `<h4>${d.icon} ${d.name}${lvl>0?` <span style="color:var(--gold-l);font-size:9px">★${lvl}</span>`:''}</h4>
+      <div class="tr"><span>PV</span><span class="tv">${hp}/${unit.mhp}</span></div>
+      <div class="tr"><span>Armure</span><span class="tv">${eff.armor}</span></div>
+      <div class="tr"><span>Dégâts</span><span class="tv">${eff.dmg}</span></div>
+      <div class="tr"><span>Portée</span><span class="tv">${eff.rMin > 0 ? eff.rMin + '–' : ''}${eff.range} case${eff.range > 1 ? 's' : ''}</span></div>
       ${this.state.moveOrders.has(unit.id) ? '<div class="tr"><span>Statut</span><span class="tv" style="color:var(--gold-l)">En marche →</span></div>' : ''}`;
     tt.style.display = 'block';
     _mvTip(e);

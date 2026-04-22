@@ -273,6 +273,9 @@ function initGame() {
   controller.cancelTsel();
   engine.init();
   renderer.mount();
+  // Must be called AFTER engine.init() so state.buildings is populated
+  renderer.refreshBldgs();
+  renderer.refreshAbils();
   lastTs = 0;
   lastGoldP = 300; lastGoldE = 300; goldFlowP = 18; goldFlowE = 18;
   showWallBanner(false);
@@ -298,9 +301,17 @@ function loop(ts) {
   updateProgressBars();
   updateGoldFlow(dt);
 
-  // Refresh upgrade progress bars every frame (cheap)
-  // Refresh ability row smoothly
-  renderer.refreshAbils();
+  // Refresh ability row only every ~200ms real time to avoid DOM thrash
+  if (!loop._abilTimer) loop._abilTimer = 0;
+  loop._abilTimer += raw;
+  if (loop._abilTimer >= 200) {
+    loop._abilTimer = 0;
+    renderer.refreshAbils();
+    // Also refresh upgrade progress if tab is active
+    if (document.getElementById('tab-upgrade')?.classList.contains('active')) {
+      refreshUpgradeTab();
+    }
+  }
 }
 
 function togglePause() {

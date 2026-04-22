@@ -507,8 +507,15 @@ export class GameEngine {
     const unit = s.cells[fromCi]?.units.find(u => u.id === unitId);
     if (!unit || unit.owner !== 'player') return { ok: false, reason: 'unit not found' };
     if (unit.type === 'wall')             return { ok: false, reason: 'walls are immovable' };
-    // Validate general direction — don't need strict path check, transit handles the rest
     if (toCi < 0 || toCi >= this.config.NC) return { ok: false, reason: 'out of bounds' };
+
+    // Destination cannot be actively held by enemy (wall or units) unless we're attacking
+    const dest = s.cells[toCi];
+    const hasEnemyWall  = dest.wall?.owner === 'enemy';
+    const hasEnemyUnits = dest.units.some(u => u.owner === 'enemy');
+    if (hasEnemyWall || hasEnemyUnits)
+      return { ok: false, reason: 'destination held by enemy' };
+
     s.moveOrders.set(unitId, toCi);
     return { ok: true };
   }
@@ -701,14 +708,26 @@ export class GameEngine {
   }
 
   _applyHit(atk, tgt, tci, def, mult = 1, dmgBonus = 0) {
-    const tgtDef = this.state.cells[tci]?.wall?.id === tgt.id
-      ? this.config.wall
-      : this._unitDef(tgt);
-    const armor  = tgtDef?.armor || 0;
+    // Guard: skip if target already at 0 HP (dead from another hit)
+    if (!tgt || tgt.hp <= 0) return;
 
-    // Dynamic balance: armor bonus when defending deep in home territory
-    const db   = this.config.DYNAMIC_BALANCE;
-    const fl   = this._computeFrontline();
+    // Determine if target is a wall
+    const cell   = this.state.cells[tci];
+    if (!cell) return;
+    const isWall = cell.wall && cell.wall.id === tgt.id;
+
+    // For units (non-wall): verify the target is still present in this cell
+    if (!isWall) {
+      const stillHere = cell.units.some(u => u.id === tgt.id);
+      if (!stillHere) return; // already removed by a prior hit
+    }
+
+    const tgtDef = isWall ? this.config.wall : this._unitDef(tgt);
+    const armor  = tgtDef?.armor ?? 0;
+
+    // Dynamic balance armor bonus
+    const db = this.config.DYNAMIC_BALANCE;
+    const fl = this._computeFrontline();
     let armorBonus = 0;
     if (db?.enabled && fl >= 0) {
       const depth = this._defenseDepth(tci, fl);
@@ -716,21 +735,20 @@ export class GameEngine {
         armorBonus = db.maxArmorBonus * Math.min(depth / db.activationDepth, 1);
     }
 
-    const dmg = Math.max(1, Math.round(
-      (def.dmg + dmgBonus - armor - armorBonus + (this.rng() - 0.5) * 8) * mult
-    ));
-    tgt.hp -= dmg;
+    const rawDmg = (def.dmg || 0) + dmgBonus - armor - armorBonus + (this.rng() - 0.5) * 8;
+    const dmg    = Math.max(1, Math.round(rawDmg * mult));
+    tgt.hp = Math.max(0, tgt.hp - dmg); // clamp to 0, never go negative
     this._emit('hit', { atk, tgt, tci, dmg });
 
     if (tgt.hp <= 0) {
-      // Check if it's a wall
-      const cell = this.state.cells[tci];
-      if (cell?.wall?.id === tgt.id) {
+      if (isWall) {
         cell.wall = null;
         this._emit('wallDestroyed', { ci: tci });
         return;
       }
-      cell.units = cell.units.filter(u => u.id !== tgt.id);
+      const idx = cell.units.findIndex(u => u.id === tgt.id);
+      if (idx === -1) return; // concurrent removal (shouldn't happen but safety)
+      cell.units.splice(idx, 1);
       this.state.moveOrders.delete(tgt.id);
       const kills = this.state.stats.kills[atk.owner];
       kills[tgt.type] = (kills[tgt.type] || 0) + 1;

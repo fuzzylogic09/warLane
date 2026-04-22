@@ -197,28 +197,25 @@ export class InputController {
   }
 
   _getValidMoves(fromCi, unit) {
+    // v3 transit model: unit can target any non-enemy-held cell
+    // The movement system handles transit through full cells automatically
     const res = [];
-    for (let i = 0; i < this.engine.config.NC; i++) {
+    const s   = this.engine.state;
+    const cfg = this.engine.config;
+    for (let i = 0; i < cfg.NC; i++) {
       if (i === fromCi || unit.owner !== 'player') continue;
-      const dir = i > fromCi ? 1 : -1;
-      let reachable = true;
-      for (let ci = fromCi + dir; ci !== i; ci += dir) {
-        if (this.engine.state.cells[ci].owner !== 'player') { reachable = false; break; }
-      }
-      if (!reachable) continue;
-      const dest = this.engine.state.cells[i];
-      if (dest.owner !== 'player' && dest.units.some(u => u.owner === 'enemy')) continue;
+      const dest = s.cells[i];
+      // Cannot target cells actively held by enemy
+      if (dest.wall?.owner === 'enemy') continue;
+      if (dest.units.some(u => u.owner === 'enemy')) continue;
       res.push(i);
     }
     return res;
   }
 
   _groupValidMoves(fromCi, units) {
-    const needed = units.reduce((s, u) => s + this.engine.config.units[u.type].slots, 0);
+    // Union of valid moves for all units in group
     const allMoves = new Set(units.flatMap(u => this._getValidMoves(fromCi, u)));
-    return [...allMoves].filter(ci => {
-      const used = this.engine.state.cells[ci].units.reduce((s, u) => s + this.engine.config.units[u.type].slots, 0);
-      return used + needed <= this.engine.config.SLOTS;
-    });
+    return [...allMoves];
   }
 }
